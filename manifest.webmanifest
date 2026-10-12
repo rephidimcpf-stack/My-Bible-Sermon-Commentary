@@ -1,0 +1,43 @@
+{
+  "id": "./",
+  "name": "My Bible — Telugu Bible Commentary",
+  "short_name": "My Bible",
+  "description": "Telugu Holy Bible with rich commentary, favorites, labels, highlights, search, offline reading and automatic backup.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#fbf7ef",
+  "theme_color": "#7a1f1f",
+  "lang": "te",
+  "dir": "ltr",
+  "categories": [
+    "books",
+    "education",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
