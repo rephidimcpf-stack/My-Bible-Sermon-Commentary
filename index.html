@@ -374,7 +374,7 @@ html[data-theme="coffee"] header{background:linear-gradient(180deg,#2b2016,#1913
 .sermon-bar input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:var(--sans);font-size:15px;background:var(--surface);color:var(--text)}
 .sermon-bar .btn{white-space:nowrap}
 .dtablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
-.dtable{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14px;min-width:520px}
+.dtable{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14px}
 .dtable th{background:var(--surface2);text-align:left;padding:10px 12px;font-weight:700;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--line)}
 .dtable td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--text);vertical-align:top}
 .dtable tbody tr:last-child td{border-bottom:none}
@@ -384,6 +384,7 @@ html[data-theme="coffee"] header{background:linear-gradient(180deg,#2b2016,#1913
 html[data-theme="dark"] .dtable td.ser,html[data-theme="night"] .dtable td.ser,html[data-theme="slate"] .dtable td.ser,html[data-theme="coffee"] .dtable td.ser{color:var(--gold2)}
 .dtable .rowdel{background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;padding:4px 6px;border-radius:8px}
 .dtable .rowdel:hover{background:var(--surface);color:var(--accent)}
+.dtable th.rowact,.dtable td.rowact{width:1%;text-align:right;white-space:nowrap}
 .sermon-title{width:100%;border:none;border-bottom:1px solid var(--line);background:none;color:var(--text);font-family:var(--sans);font-size:20px;font-weight:700;padding:6px 2px;margin-bottom:12px;outline:none}
 .sermon-title:focus{border-color:var(--accent)}
 .sermon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
@@ -441,14 +442,8 @@ html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,h
   .rmodal-body{padding:12px}
   .rmodal-head{padding:12px 14px}
   .svbody{font-size:16px;line-height:1.8}
-  /* responsive sermon table: drop the Book / Reference / Category columns,
-     fold them into a meta line under the title so nothing scrolls sideways */
-  .dtable{min-width:0}
-  .dtable th:nth-child(3),.dtable td:nth-child(3),
-  .dtable th:nth-child(4),.dtable td:nth-child(4),
-  .dtable th:nth-child(5),.dtable td:nth-child(5){display:none}
+  /* sermon table shows only Series + Title, so it never scrolls sideways */
   .dtable th,.dtable td{padding:9px 10px}
-  .tmeta{display:block}
 }
 
 /* let the sermon form columns shrink so long book names never push off-screen */
@@ -784,6 +779,7 @@ body{
    <h3>Install as app</h3>
    <p class="help" style="font-family:var(--sans);font-size:14.5px;line-height:1.8;margin:0 0 10px">Add the Bible to your home screen so it opens full-screen and works offline.</p>
    <div class="row"><button class="btn" id="installBtn">📲 Install app</button></div>
+   <p class="help" id="appVer" style="font-family:var(--sans);font-size:12.5px;color:var(--muted);margin:10px 0 0"></p>
   </div>
  </div>
 </div>
@@ -969,7 +965,7 @@ body{
   </div>
   <div class="dtablewrap">
     <table class="dtable">
-      <thead><tr><th>Series</th><th>Title</th><th>Book</th><th>Reference</th><th>Category</th><th></th></tr></thead>
+      <thead><tr><th>Series</th><th>Title</th><th class="rowact"></th></tr></thead>
       <tbody id="sermonRows"></tbody>
     </table>
   </div>
@@ -1829,9 +1825,22 @@ $('expNotes').onclick=function(){
 $('impNotes').onclick=function(){$('fileNotes').click();};
 $('fileNotes').onchange=function(e){
   var f=e.target.files[0];if(!f)return;var rd=new FileReader();
-  rd.onload=function(){try{var n=importCommentary(JSON.parse(rd.result));renderNotes();toast(n+' notes imported');}catch(err){toast('Could not read file');}e.target.value='';};
+  rd.onload=function(){try{handleRestoreFile(rd.result);renderNotes();}catch(err){toast('Could not read file');}e.target.value='';};
   rd.readAsText(f);
 };
+/* ---------- restore a JSON file ----------
+   Accepts BOTH a full Backup file and a reference-keyed notes file, so the
+   "Backup/Restore" and "Export/Import notes" buttons are interchangeable. */
+function looksLikeFullBackup(o){
+  return !!(o && typeof o === 'object' && (o.app || o.version || o.savedAt || o.notes || o.marks || o.labels || o.highlights || o.whl || o.wh || o.wn || o.vedits || o.sermons || o.settings));
+}
+function looksLikeNotesMap(o){
+  if(!o || typeof o !== 'object') return false;
+  var ks = Object.keys(o); if(!ks.length) return false;
+  var hits = 0;
+  for(var i=0;i<ks.length;i++){ if(/^(.*?)\s*(\d+)\s*[:.\s]\s*(\d+)\s*$/.test(ks[i])) hits++; }
+  return hits > 0 && hits >= Math.ceil(ks.length/2);
+}
 function importCommentary(obj){
   var n=0;
   Object.keys(obj).forEach(function(k){
@@ -1842,6 +1851,23 @@ function importCommentary(obj){
     notes[vkey(bi,ch,v)]=String(obj[k]);n++;
   });
   save(LS.notes,notes);return n;
+}
+function restoreObject(obj, mode){
+  if(looksLikeFullBackup(obj)) return applyBackupFull(obj, {mode: mode});
+  var n = importCommentary(obj);
+  return {total:n, notes:n, marks:0, labels:0, highlights:0, words:0, vedits:0, sermons:0};
+}
+function handleRestoreFile(text){
+  var obj;
+  try{ obj = JSON.parse(text); }catch(e){ toast('Could not read that file — it is not a My Bible backup'); return; }
+  if(!obj || typeof obj !== 'object' || Array.isArray(obj)){ toast('Could not read that file'); return; }
+  var mode = 'merge';
+  if(looksLikeFullBackup(obj)){
+    mode = window.confirm('Restore My Bible backup?\n\nOK  = Replace: make this device match the backup exactly (items you deleted on the other device are removed here too).\n\nCancel = Merge: keep what is already on this device and add or update from the backup.') ? 'replace' : 'merge';
+  }
+  var r = restoreObject(obj, mode);
+  try{ renderNotes(); renderMarks(); }catch(e){}
+  toast('Restored ' + r.total + ' item' + (r.total===1?'':'s') + ' — ' + r.notes + ' notes, ' + r.vedits + ' edits, ' + r.highlights + ' highlights, ' + r.words + ' word notes');
 }
 /* ---------- backup / restore (choose location) ---------- */
 function downloadJSON(obj,name){
@@ -1872,7 +1898,7 @@ function doRestore(){
   if(window.showOpenFilePicker){
     showOpenFilePicker({types:[{description:'JSON',accept:{'application/json':['.json']}}],multiple:false})
       .then(function(hs){return hs[0].getFile();}).then(function(f){return f.text();})
-      .then(function(txt){var n=applyBackup(JSON.parse(txt));toast('Restored ('+n+' notes)');})
+      .then(function(txt){ handleRestoreFile(txt); })
       .catch(function(e){if(e&&e.name==='AbortError')return;$('fileBackup').click();});
   }else{$('fileBackup').click();}
 }
@@ -1880,7 +1906,7 @@ $('backupBtn').onclick=doBackup;$('backupBtn2').onclick=doBackup;
 $('restoreBtn').onclick=doRestore;$('restoreBtn2').onclick=doRestore;
 $('fileBackup').onchange=function(e){
   var f=e.target.files[0];if(!f)return;var rd=new FileReader();
-  rd.onload=function(){try{var n=applyBackup(JSON.parse(rd.result));toast('Restored ('+n+' notes)');}catch(err){toast('Could not read file');}e.target.value='';};
+  rd.onload=function(){try{handleRestoreFile(rd.result);}catch(err){toast('Could not read file');}e.target.value='';};
   rd.readAsText(f);
 };
 $('helpNotes').onclick=function(){$('helpSheet').classList.add('open');};
@@ -2429,29 +2455,50 @@ function snapshotPayload(){
     whl: whl, wh: wh, wn: wn, vedits: vedits, sermons: sermons, settings: settings, recent: recent};
 }
 function backupPayload(){ var p = snapshotPayload(); p.version = 2; return p; }
-function applyBackupFull(obj){
-  if (!obj || typeof obj !== 'object') return 0;
-  var n = 0;
-  function merge(dst, src){ if (src && typeof src === 'object') Object.keys(src).forEach(function(k){ dst[k] = src[k]; n++; }); }
-  if (obj.notes) merge(notes, obj.notes);
-  if (obj.marks) merge(marks, obj.marks);
-  if (obj.labels) merge(labels, obj.labels);
-  if (obj.highlights) merge(highlights, obj.highlights);
-  if (obj.whl) merge(whl, obj.whl);
-  if (obj.wh) merge(wh, obj.wh);
-  if (obj.wn) merge(wn, obj.wn);
-  if (obj.vedits) merge(vedits, obj.vedits);
-  if (Array.isArray(obj.sermons)){ obj.sermons.forEach(function(s){ if (s && s.id && !sermons.some(function(x){ return x.id === s.id; })){ sermons.push(s); n++; } }); save('tbb_sermons_v1', sermons); }
+function applyBackupFull(obj, opts){
+  opts = opts || {};
+  var counts = {total:0, notes:0, marks:0, labels:0, highlights:0, words:0, vedits:0, sermons:0};
+  if (!obj || typeof obj !== 'object') return counts;
+  var replace = (opts.mode === 'replace');
+  var sets = {notes:notes, marks:marks, labels:labels, highlights:highlights, whl:whl, wh:wh, wn:wn, vedits:vedits};
+  if (replace){
+    // Make this device match the backup exactly: clear categories the backup does not carry.
+    Object.keys(sets).forEach(function(c){ if (!obj[c]) Object.keys(sets[c]).forEach(function(k){ delete sets[c][k]; }); });
+    if (!Array.isArray(obj.sermons)) sermons.length = 0;
+  }
+  function merge(dst, src, cat){
+    if (!src || typeof src !== 'object') return;
+    if (replace) Object.keys(dst).forEach(function(k){ delete dst[k]; });
+    Object.keys(src).forEach(function(k){ dst[k] = src[k]; counts[cat]++; counts.total++; });
+  }
+  merge(notes, obj.notes, 'notes');
+  merge(marks, obj.marks, 'marks');
+  merge(labels, obj.labels, 'labels');
+  merge(highlights, obj.highlights, 'highlights');
+  merge(whl, obj.whl, 'words');
+  merge(wh, obj.wh, 'words');
+  merge(wn, obj.wn, 'words');
+  merge(vedits, obj.vedits, 'vedits');
+  if (Array.isArray(obj.sermons)){
+    obj.sermons.forEach(function(s){
+      if (!s || !s.id) return;
+      var i = -1; for (var j=0;j<sermons.length;j++){ if (sermons[j] && sermons[j].id === s.id){ i = j; break; } }
+      if (i >= 0) sermons[i] = s; else sermons.push(s);
+      counts.sermons++; counts.total++;
+    });
+  }
   if (obj.settings) Object.assign(settings, obj.settings);
   save(LS.notes, notes); save(LS.marks, marks); save('tbb_labels_v1', labels);
-  save('tbb_hl_v1', highlights); save('tbb_whl2_v1', wh); save('tbb_wnotes_v1', wn);
-  save('tbb_vedit_v1', vedits); save(LS.set, settings);
+  save('tbb_hl_v1', highlights); save('tbb_whl_v1', whl); save('tbb_whl2_v1', wh);
+  save('tbb_wnotes_v1', wn); save('tbb_vedit_v1', vedits);
+  if (Array.isArray(obj.sermons)) save('tbb_sermons_v1', sermons);
+  save(LS.set, settings);
   try{ applySettings(); whRebuild(); wnRebuild(); }catch(e){}
-  renderNotes(); renderMarks(); renderLabels();
+  try{ renderNotes(); renderMarks(); renderLabels(); }catch(e){}
   if (S.view === 'read') reRenderChapter();
-  return n;
+  return counts;
 }
-function applyBackup(obj){ return applyBackupFull(obj); }
+function applyBackup(obj, opts){ return applyBackupFull(obj, opts).total; }
 function ago(t){
   var s = Math.floor((Date.now() - t) / 1000);
   if (s < 60) return s + 's ago';
@@ -2660,18 +2707,47 @@ async function setupPWA(){
   }catch(e){}
   // Prefer a real service worker file; fall back to an inline best-effort one.
   if ('serviceWorker' in navigator){
-    try{ await navigator.serviceWorker.register('sw.js'); }
+    try{
+      var reg = await navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'});
+      watchForUpdates(reg);
+    }
     catch(e){ try{ registerInlineSW(); }catch(e2){} }
   }
+}
+/* Keep the installed app current: activate a new version at once and reload the
+   page the moment a new service worker takes control, so phones stop showing
+   the old cached app. */
+var _swReloading = false;
+function watchForUpdates(reg){
+  try{
+    var hadController = !!navigator.serviceWorker.controller;
+    try{ reg.update(); }catch(e){}
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if (!hadController || _swReloading) return; _swReloading = true;
+      try{ location.reload(); }catch(e){}
+    });
+    reg.addEventListener('updatefound', function(){
+      var nw = reg.installing; if (!nw) return;
+      nw.addEventListener('statechange', function(){
+        if (nw.state === 'installed' && navigator.serviceWorker.controller){
+          try{ nw.postMessage({type: 'SKIP_WAITING'}); }catch(e){}
+        }
+      });
+    });
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible'){ try{ reg.update(); }catch(e){} }
+    });
+  }catch(e){}
 }
 function registerInlineSW(){
   if (!('serviceWorker' in navigator)) return;
   if (location.protocol === 'file:') return;
   var pageURL = location.href.split('#')[0].split('?')[0];
-  var sw = "var CACHE='my-bible-v3';var SHELL=" + JSON.stringify(pageURL) + ";" +
+  var sw = "var CACHE='my-bible-v4';var SHELL=" + JSON.stringify(pageURL) + ";" +
     "self.addEventListener('install',function(e){e.waitUntil(caches.open(CACHE).then(function(c){return Promise.all([SHELL,'./','./manifest.webmanifest'].map(function(u){return c.add(u).catch(function(){});}));}).then(function(){return self.skipWaiting();}));});" +
     "self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));}).then(function(){return self.clients.claim();}));});" +
-    "self.addEventListener('fetch',function(e){if(e.request.method!=='GET')return;var u=new URL(e.request.url);if(e.request.mode==='navigate'){e.respondWith(caches.match(SHELL).then(function(ca){var net=fetch(e.request).then(function(r){if(r&&r.ok){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(SHELL,cl);});}return r;}).catch(function(){return ca;});return ca||net;}));return;}e.respondWith(caches.match(e.request).then(function(ca){if(ca)return ca;return fetch(e.request).then(function(r){if(r&&r.ok&&(u.origin===location.origin||u.hostname.indexOf('jsdelivr')>=0||u.hostname.indexOf('googleapis')>=0||u.hostname.indexOf('gstatic')>=0)){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(e.request,cl);});}return r;}).catch(function(){return caches.match(SHELL);});}));});";
+    "self.addEventListener('message',function(e){if(e.data&&e.data.type==='SKIP_WAITING')self.skipWaiting();});" +
+    "self.addEventListener('fetch',function(e){if(e.request.method!=='GET')return;var u=new URL(e.request.url);if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).then(function(r){if(r&&r.ok){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(SHELL,cl);});}return r;}).catch(function(){return caches.match(SHELL);}));return;}e.respondWith(caches.match(e.request).then(function(ca){if(ca)return ca;return fetch(e.request).then(function(r){if(r&&r.ok&&(u.origin===location.origin||u.hostname.indexOf('jsdelivr')>=0||u.hostname.indexOf('googleapis')>=0||u.hostname.indexOf('gstatic')>=0)){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(e.request,cl);});}return r;}).catch(function(){return caches.match(SHELL);});}));});";
   try{
     var blob = new Blob([sw], {type: 'application/javascript'});
     var u = URL.createObjectURL(blob);
@@ -3114,9 +3190,8 @@ function renderSermons(){
   list.forEach(function(s){
     var tr = document.createElement('tr');
     tr.innerHTML = '<td class="ser">' + esc(s.series || '—') + '</td>' +
-      '<td class="ti">' + esc(s.title || '—') + '<span class="tmeta">' + esc([bookName(s.book) || '—', s.reference || '—', s.category || '—'].join(' · ')) + '</span></td>' +
-      '<td>' + esc(bookName(s.book) || '—') + '</td><td>' + esc(s.reference || '—') + '</td><td>' + esc(s.category || '—') + '</td>' +
-      '<td><button class="rowdel" title="Delete">🗑</button></td>';
+      '<td class="ti">' + esc(s.title || '—') + '</td>' +
+      '<td class="rowact"><button class="rowdel" title="Delete">🗑</button></td>';
     tr.onclick = function(e){ if (e.target && e.target.closest && e.target.closest('.rowdel')) return; openSermon(s.id); };
     tr.querySelector('.rowdel').onclick = function(e){ e.stopPropagation(); if (window.confirm('Delete "' + (s.title || s.series || 'sermon') + '"?')){ sermons = sermons.filter(function(x){ return x.id !== s.id; }); saveSermons(); renderSermons(); refreshSermonLinks(); toast('Deleted'); } };
     tb.appendChild(tr);
@@ -3245,6 +3320,7 @@ function renderSermons(){
   try{ buildIconGrid(); }catch(e){}
   try{ applyAppIcon(); }catch(e){}
   try{ setupPWA(); }catch(e){}
+  try{ var av = $('appVer'); if (av) av.textContent = 'App version 4 — updates install automatically'; }catch(e){}
   try{ loadBakDir(); }catch(e){}
   window.addEventListener('beforeinstallprompt', function(){ setTimeout(showInstallUI, 60); });
   window.addEventListener('appinstalled', function(){ hideInstallUI(); });

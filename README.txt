@@ -35,12 +35,42 @@ INSTALL IT ON YOUR PHONE
                     "Add to Home Screen".
 Once installed it opens offline, with the "My Bible" name and icon.
 
+UPDATING LATER (IMPORTANT)
+--------------------------
+To update, replace the HTML file (keep the same name) AND upload sw.js again.
+The app now updates itself: it checks for a new version every time it opens
+and comes back to the foreground, and reloads automatically when one is found.
+If your phone still shows an old version, open the site once in the phone's
+browser (not the home-screen icon) and reload, or clear the site's cached
+data in the browser settings, then open the app again.
+
+You can confirm which version is running: open the app, go to Settings and
+look at "Install as app" - it shows the app version there.
+
+BACKUP AND RESTORE
+------------------
+Your notes, favourites, highlights, word comments, verse edits and sermons are
+stored inside the browser on your device. Use the app's buttons to save a copy
+and move it between your computer and your phone:
+
+  Backup (full file)      ->  Restore   loads it back
+  Export notes (notes only) -> Import notes  loads it back
+
+The two are interchangeable now: Restore also accepts an Export-notes file,
+and Import notes also accepts a full Backup file, so it no longer matters
+which pair you use.
+
+When you Restore, the app asks a simple question:
+  OK     = Replace  - make this device match the backup exactly
+                      (items you deleted on the other device are removed here too)
+  Cancel = Merge    - keep what is already on this device and add/update
+
+Tip: to move everything from your computer to your phone, press Backup on the
+computer, move the file to the phone, then press Restore on the phone and
+choose OK (Replace).
+
 NOTES
 -----
   - Opening the HTML file directly from your phone or computer also works;
     the other four files are only needed for the installable app version.
-  - Your notes, favourites, highlights and sermons are stored inside the
-    browser on your device. Use the app's backup buttons to save a copy
-    (they let you choose where the file goes) and keep it somewhere safe.
-  - To update later, replace the HTML file (keep the same name) and the
-    app will refresh itself the next time it is opened online.
+    (Backup/Restore still works when opening the file directly.)

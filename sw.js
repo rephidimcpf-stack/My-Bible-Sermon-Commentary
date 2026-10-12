@@ -1,5 +1,15 @@
-/* My Bible — service worker: offline-first shell (instant repeat loads) */
-const CACHE = 'my-bible-v3';
+/* My Bible — service worker
+   Goal: the installed app always shows the latest version, and still works
+   fully offline.
+
+   - App pages (navigations) are fetched from the network FIRST, so an updated
+     HTML file appears the very next time the app is opened. If the phone is
+     offline, the last saved copy is used instead.
+   - A new service worker activates immediately (skipWaiting + clients.claim),
+     and the page reloads itself once the new worker takes over.
+   - Bump VERSION whenever you upload a new build to force a clean cache. */
+const VERSION = 'v4';
+const CACHE = 'my-bible-' + VERSION;
 const ASSETS = ['./', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -18,23 +28,24 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+/* The page asks us to take over at once when a new version is found. */
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
 
-  // App navigations: serve the cached shell immediately, refresh it in the
-  // background (stale-while-revalidate). Instant and fully offline.
+  // App pages: network first so updates show immediately; cached copy offline.
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      caches.match('./').then((cached) => {
-        const net = fetch(e.request)
-          .then((r) => {
-            if (r && r.ok) { const cl = r.clone(); caches.open(CACHE).then((c) => c.put('./', cl)); }
-            return r;
-          })
-          .catch(() => cached);
-        return cached || net;
-      })
+      fetch(e.request)
+        .then((r) => {
+          if (r && r.ok) { const cl = r.clone(); caches.open(CACHE).then((c) => c.put('./', cl)); }
+          return r;
+        })
+        .catch(() => caches.match('./'))
     );
     return;
   }
