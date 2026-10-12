@@ -477,6 +477,122 @@ html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,h
 .popveil{z-index:2900}
 .popover{z-index:3000}
 
+/* =========================================================================
+   PALETTE v2 — accurate, cohesive, high-contrast themes
+   Every theme defines all tokens so nothing falls back to a wrong value.
+   ========================================================================= */
+:root,html:not([data-theme]),html[data-theme="light"]{
+  --bg:#faf7f0; --surface:#ffffff; --surface2:#f2ebdc;
+  --text:#241d16; --muted:#6b6252;
+  --accent:#8f2a2a; --accent2:#6f1f1f; --gold:#a9791a; --gold2:#c19a2e;
+  --line:#e8ddc6; --shadow:0 6px 24px rgba(60,40,10,.12);
+}
+html[data-theme="sepia"]{
+  --bg:#f2e7ce; --surface:#fbf4e2; --surface2:#e9dcbe;
+  --text:#3c3125; --muted:#6d5e48;
+  --accent:#8a5320; --accent2:#6a3e15; --gold:#99691d; --gold2:#b8863a;
+  --line:#d9c9a4; --shadow:0 6px 24px rgba(90,60,20,.15);
+}
+html[data-theme="ocean"]{
+  --bg:#edf4f9; --surface:#ffffff; --surface2:#dce9f4;
+  --text:#12303f; --muted:#4d7186;
+  --accent:#15618f; --accent2:#0f4a70; --gold:#1d7fa8; --gold2:#2b96c0;
+  --line:#cae0ee; --shadow:0 6px 24px rgba(20,70,110,.15);
+}
+html[data-theme="forest"]{
+  --bg:#eef4ec; --surface:#ffffff; --surface2:#dcead7;
+  --text:#1c3320; --muted:#4f7050;
+  --accent:#2c6b33; --accent2:#1f5225; --gold:#3f8a3c; --gold2:#52a04d;
+  --line:#cee2c9; --shadow:0 6px 24px rgba(30,70,30,.15);
+}
+html[data-theme="studio"]{
+  --bg:#f5f7f9; --surface:#ffffff; --surface2:#eaeef2;
+  --text:#1b2733; --muted:#52636f;
+  --accent:#2563a8; --accent2:#1a4d85; --gold:#2f74b8; --gold2:#4288c8;
+  --line:#dae2e9; --shadow:0 6px 24px rgba(30,60,90,.14);
+}
+html[data-theme="ink"]{
+  --bg:#ffffff; --surface:#ffffff; --surface2:#f2f2f2;
+  --text:#0f0f0f; --muted:#565656;
+  --accent:#b3261e; --accent2:#8c1d18; --gold:#8a6a12; --gold2:#a5851f;
+  --line:#e5e5e5; --shadow:0 6px 24px rgba(0,0,0,.10);
+}
+html[data-theme="dark"]{
+  --bg:#12151c; --surface:#1a1f29; --surface2:#232937;
+  --text:#e9e4d9; --muted:#a49b8a;
+  --accent:#d9a441; --accent2:#b9863a; --gold:#e2b54f; --gold2:#f0c96a;
+  --line:#2b3341; --shadow:0 6px 24px rgba(0,0,0,.5);
+}
+html[data-theme="night"]{
+  --bg:#000000; --surface:#0b0b0e; --surface2:#15151a;
+  --text:#e0e0e0; --muted:#979797;
+  --accent:#cfa437; --accent2:#ac8529; --gold:#d6ad42; --gold2:#e8c55e;
+  --line:#232329; --shadow:0 6px 24px rgba(0,0,0,.7);
+}
+html[data-theme="slate"]{
+  --bg:#0f141b; --surface:#161d26; --surface2:#1f2833;
+  --text:#e7edf4; --muted:#a8b6c6;
+  --accent:#79b0e6; --accent2:#5a93cf; --gold:#e0b84a; --gold2:#eecd6a;
+  --line:#293442; --shadow:0 6px 24px rgba(0,0,0,.55);
+}
+html[data-theme="coffee"]{
+  --bg:#191310; --surface:#241b15; --surface2:#2f241c;
+  --text:#f0e7dd; --muted:#c0ab97;
+  --accent:#d9a441; --accent2:#b9863a; --gold:#e2b54f; --gold2:#f0c96a;
+  --line:#3a2c22; --shadow:0 6px 24px rgba(0,0,0,.6);
+}
+
+/* headers: light themes use the accent gradient; dark themes use a deep,
+   brand-tinted bar so the header always matches the theme (no brown/navy mix) */
+html[data-theme="dark"] header{background:linear-gradient(180deg,#3a1719,#240c0d);border-bottom:1px solid var(--line)}
+html[data-theme="night"] header{background:linear-gradient(180deg,#1a0f10,#080405);border-bottom:1px solid var(--line)}
+html[data-theme="slate"] header{background:linear-gradient(180deg,#1d2735,#131a23);border-bottom:1px solid var(--line)}
+html[data-theme="coffee"] header{background:linear-gradient(180deg,#2b2016,#191310);border-bottom:1px solid var(--line)}
+html[data-theme="studio"] header{background:linear-gradient(180deg,#1a4d85,#2563a8)}
+html[data-theme="ink"] header{background:linear-gradient(180deg,#1a1a1a,#0a0a0a)}
+
+/* =========================================================================
+   TYPOGRAPHY — nicer, calmer, more readable text
+   ========================================================================= */
+body{
+  line-height:1.9; letter-spacing:.002em;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+.vt{line-height:1.95;letter-spacing:.004em}
+.verse{padding:9px 12px;border-radius:12px}
+.vn{font-size:.7em;font-weight:700;letter-spacing:.02em}
+.chapter-head h1{font-family:var(--sans);font-size:1.42em;font-weight:700;letter-spacing:.01em}
+/* UI-facing headings use the clean sans face */
+.redit h1,.svbody h1,.cvbody h1,.pophead span,.panel .phead .ref{font-family:var(--sans);letter-spacing:.01em}
+.redit h2,.svbody h2,.cvbody h2{font-family:var(--sans);font-weight:700}
+.redit h3,.svbody h3,.cvbody h3{font-family:var(--sans);font-weight:600}
+.redit p,.svbody p,.cvbody p{margin:.55em 0}
+.redit ul,.redit ol,.svbody ul,.svbody ol,.cvbody ul,.cvbody ol{line-height:1.8}
+.redit blockquote,.svbody blockquote,.cvbody blockquote{line-height:1.85}
+
+/* =========================================================================
+   SERMON — full-screen focus reading view
+   ========================================================================= */
+#sermonView{align-items:stretch;justify-content:stretch;background:var(--bg);padding:0}
+#sermonView .svmodal{max-width:none;width:100%;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;border-radius:0;background:var(--bg);box-shadow:none}
+#sermonView .rmodal-head{position:sticky;top:0;z-index:3;background:var(--surface);padding:16px 20px;border-bottom:1px solid var(--line)}
+#sermonView .rmodal-head h3{font-size:19px;letter-spacing:.01em}
+#sermonView .rmodal-body{padding:26px 20px 56px;display:block}
+#sermonView .svchips,#sermonView .svbody{max-width:720px;margin-left:auto;margin-right:auto}
+#sermonView .svbody{font-size:1.06em;line-height:1.95}
+#sermonView .rmodal-foot{position:sticky;bottom:0;z-index:3;background:var(--surface);border-top:1px solid var(--line)}
+
+/* =========================================================================
+   MOBILE ALIGNMENT — even padding, nothing overflowing
+   ========================================================================= */
+@media (max-width:560px){
+  #sermonView .rmodal-head{padding:14px 16px}
+  #sermonView .rmodal-body{padding:20px 16px 44px}
+  .chapter-head h1{font-size:1.32em}
+  .verse{padding:8px 10px}
+}
+
 </style>
 <style>
 .bkbanner{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
@@ -815,11 +931,10 @@ html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,h
     </div>
     <div class="setgroup">
       <h3>Auto backup</h3>
-      <p class="help" style="font-family:var(--sans);font-size:14px;line-height:1.7;margin:0 0 8px">Automatically keeps a restorable copy of your commentary, favorites, labels, highlights and verse edits — saved quietly every time you make a change. Choose a folder once and it also writes a JSON file there, so your work is never lost.</p>
+      <p class="help" style="font-family:var(--sans);font-size:14px;line-height:1.7;margin:0 0 8px">Automatically keeps a restorable copy of your commentary, favorites, labels, highlights and verse edits — saved quietly every time you make a change. Tap <b>Save a backup file</b> whenever you want a copy you can keep or move.</p>
       <div class="togrow"><span>Auto backup</span><span class="toggle"><input type="checkbox" id="autoBakTog"><span class="toggle-slider"></span></span></div>
       <div class="row" style="margin-top:12px">
-        <button class="btn" id="chooseFolderBtn">📁 Remember backup folder</button>
-        <button class="btn ghost" id="downloadBackupBtn">⬇ Download backup file</button>
+        <button class="btn" id="downloadBackupBtn">⬇ Save a backup file</button>
         <button class="btn ghost" id="restoreAutoBtn">♻ Restore auto-backup</button>
       </div>
       <p class="help" id="autoBakStatus" style="font-family:var(--sans);font-size:13px;color:var(--muted);margin:10px 0 0"></p>
@@ -861,8 +976,7 @@ html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,h
   <div id="sermonEmpty" class="empty">No sermons yet<br>Tap ＋ New to create one</div>
   <div class="sermon-bak">
     <div class="sb-actions">
-      <button class="btn ghost" id="sermonPickDir" title="Choose a folder to keep sermon backups in">📁 Folder</button>
-      <button class="btn ghost" id="sermonBakNow" title="Write the sermons backup now">⤓ Back up</button>
+      <button class="btn ghost" id="sermonBakNow" title="Save a sermons backup file">⤓ Back up</button>
       <button class="btn ghost" id="sermonImport" title="Import sermons from a backup file">⤒ Import</button>
       <input type="file" id="sermonImportFile" accept=".json,application/json" hidden>
     </div>
@@ -2426,11 +2540,8 @@ async function autoBackupToFolder(){
 }
 function renderAutoBakStatus(){
   var el = $('autoBakStatus'); if (!el) return;
-  var ts = getNum('tbb_autobak_ts_v1'), fts = getNum('tbb_autobak_file_ts_v1'), parts = [];
-  parts.push(ts ? ('Last auto-save: ' + ago(ts)) : 'Auto-save pending');
-  if (bakDir) parts.push('Folder: ' + (settings.lastBakDir || bakDir.name || 'remembered') + (fts ? ' · last file ' + ago(fts) : ''));
-  else parts.push('No folder set (use "Remember backup folder" to auto-write a JSON file)');
-  el.textContent = parts.join('  ·  ');
+  var ts = getNum('tbb_autobak_ts_v1');
+  el.textContent = ts ? ('Last auto-save: ' + ago(ts)) : 'Auto-save pending';
 }
 
 /* ---- choose-where-to-save, on desktop AND on phone/PWA ---- */
@@ -2608,13 +2719,13 @@ $('richDel').onclick = deleteRich;
 $('richModal').addEventListener('click', function(e){ if (e.target === this) closeRich(); });
 $('veClose').onclick = function(){ $('veSheet').classList.remove('open'); curEdit = null; };
 $('veSave').onclick = saveVerseEdit;
-$('veReset').onclick = resetVerseEdit;
-$('toolsClose').onclick = function(){ $('toolsSheet').classList.remove('open'); };
-$('btnTools').onclick = function(){ $('toolsSheet').classList.add('open'); renderStats(); renderAutoBakStatus(); buildIconGrid(); };
-$('chooseFolderBtn').onclick = chooseBackupFolder;
-$('restoreAutoBtn').onclick = restoreAutoBackup;
-$('downloadBackupBtn').onclick = function(){ try{ doBackup(); }catch(e){} };
-$('installBtn3').onclick = promptInstall;
+if ($('veReset')) $('veReset').onclick = resetVerseEdit;
+if ($('toolsClose')) $('toolsClose').onclick = function(){ $('toolsSheet').classList.remove('open'); };
+if ($('btnTools')) $('btnTools').onclick = function(){ $('toolsSheet').classList.add('open'); renderStats(); renderAutoBakStatus(); buildIconGrid(); };
+if ($('chooseFolderBtn')) $('chooseFolderBtn').onclick = chooseBackupFolder;
+if ($('restoreAutoBtn')) $('restoreAutoBtn').onclick = restoreAutoBackup;
+if ($('downloadBackupBtn')) $('downloadBackupBtn').onclick = function(){ try{ doBackup(); }catch(e){} };
+if ($('installBtn3')) $('installBtn3').onclick = promptInstall;
 $('installBannerGo').onclick = promptInstall;
 $('installBannerX').onclick = function(){ hideInstallUI(); localStorage.setItem('installBannerDismissed', '1'); };
 (function(){
@@ -2936,9 +3047,8 @@ async function loadSermonDir(){ try{ var h = await metaGet('sermonDir'); if (h) 
 function renderSermonBakStatus(){
   var el = $('sermonBakStatus'); if (!el) return;
   var parts = [sermons.length + (sermons.length === 1 ? ' sermon' : ' sermons')];
-  if (sermonDir) parts.push('Folder: ' + (settings.lastSermonDir || sermonDir.name || 'remembered'));
-  else parts.push('No folder set — Back up lets you choose where to save');
-  var ts = getNum('tbb_sermonbak_ts_v1'); if (ts) parts.push('Last backup ' + ago(ts));
+  var ts = getNum('tbb_sermonbak_ts_v1');
+  parts.push(ts ? ('Last backup ' + ago(ts)) : 'Back up saves a file you can keep or move');
   el.textContent = parts.join('  ·  ');
 }
 async function sermonWriteToDir(){
@@ -3099,8 +3209,20 @@ function renderSermons(){
 
 /* ---------------- professional themes ---------------- */
 (function(){
-  var extra = [['studio', 'Studio', '#f4f6f8', '#2563a8'], ['ink', 'Ink', '#ffffff', '#b3261e'], ['slate', 'Slate', '#10151c', '#7fb0e6'], ['coffee', 'Coffee', '#1a1410', '#d9a441']];
-  try{ extra.forEach(function(t){ if (!THEMES.some(function(x){ return x[0] === t[0]; })) THEMES.push(t); }); }catch(e){}
+  /* full, accurate theme list (bg + accent swatch) — light themes first */
+  var all = [
+    ['light', 'Light', '#faf7f0', '#8f2a2a'],
+    ['sepia', 'Sepia', '#f2e7ce', '#8a5320'],
+    ['ocean', 'Ocean', '#edf4f9', '#15618f'],
+    ['forest', 'Forest', '#eef4ec', '#2c6b33'],
+    ['studio', 'Studio', '#f5f7f9', '#2563a8'],
+    ['ink', 'Ink', '#ffffff', '#b3261e'],
+    ['dark', 'Dark', '#12151c', '#d9a441'],
+    ['night', 'Night', '#000000', '#cfa437'],
+    ['slate', 'Slate', '#0f141b', '#79b0e6'],
+    ['coffee', 'Coffee', '#191310', '#d9a441']
+  ];
+  try{ THEMES.length = 0; all.forEach(function(t){ THEMES.push(t); }); }catch(e){}
 })();
 
 /* keep verse badges in sync when favorites are toggled from the popover or search */

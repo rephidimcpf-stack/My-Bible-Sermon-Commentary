@@ -40,7 +40,7 @@ NOTES
   - Opening the HTML file directly from your phone or computer also works;
     the other four files are only needed for the installable app version.
   - Your notes, favourites, highlights and sermons are stored inside the
-    browser on your device. Use the app's Backup buttons to save a copy,
-    and keep that copy somewhere safe.
+    browser on your device. Use the app's backup buttons to save a copy
+    (they let you choose where the file goes) and keep it somewhere safe.
   - To update later, replace the HTML file (keep the same name) and the
     app will refresh itself the next time it is opened online.
