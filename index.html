@@ -38,7 +38,7 @@ html[data-font="gidugu"]{--serif:"GiduguX",serif;--sans:"GiduguX",serif;}
 html[data-font="suravaram"]{--serif:"SuravaramX",serif;--sans:"SuravaramX",serif;}
 html[data-font="ramaraja"]{--serif:"RamarajaX",serif;--sans:"RamarajaX",serif;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;height:100%}
+html,body{margin:0;padding:0;height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--serif);font-size:var(--fs,19px);line-height:1.95;overflow-x:hidden}
 button,input,select,textarea{font-family:inherit;color:inherit}
 button{cursor:pointer;border:none;background:none}
@@ -460,7 +460,7 @@ html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,h
   .rmodal-body{padding:12px}
   .rmodal-head{padding:12px 14px}
   .svbody{font-size:16px;line-height:1.8}
-  /* sermon table shows only Series + Title, so it never scrolls sideways */
+  /* sermon table: compact cells (single-line layout is set in the final stylesheet) */
   .dtable th,.dtable td{padding:9px 10px}
 }
 
@@ -634,6 +634,33 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
  border-radius:12px;padding:10px 12px;margin:0 0 12px;font-family:var(--sans);font-size:13.5px;line-height:1.6}
 .bkbanner span{flex:1 1 200px;color:var(--text)}
 .bkbanner .btn{padding:6px 12px;font-size:13px}
+/* ---- phone portrait: keep controls compact so nothing looks oversized ---- */
+@media (max-width:560px){
+  .btn{padding:9px 14px;font-size:14px;border-radius:11px}
+  .rb{padding:7px 12px;font-size:13px}
+  .navbtn{padding:10px;font-size:14px}
+  .act{padding:8px 12px;font-size:13px}
+  .pnav button{padding:9px;font-size:13px}
+  .seg button{padding:7px 10px;font-size:12.5px}
+  .markbar .btn{padding:6px 10px;font-size:12px}
+  .pactions .btn,#viewNotes > .row .btn{min-height:38px;font-size:12.5px;padding:8px}
+  .sb-actions .btn{padding:7px 10px;font-size:12px}
+  .sermon-filters select,.sermon-filters .btn{font-size:12.5px;padding:8px 9px}
+  .sermon-bar input{font-size:14px}
+  .tbs{width:20px;height:20px}
+  .tb-color{width:26px;height:26px}
+  /* sermon library table: Series / Title / Category on one line each (no wrapping) */
+  .dtable{table-layout:fixed}
+  .dtable th,.dtable td{padding:8px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dtable th{font-size:10px}
+  .dtable td{font-size:12.5px}
+  .dtable th:nth-child(1),.dtable td.ser{width:22%}
+  .dtable th:nth-child(2),.dtable td.ti{width:44%}
+  .dtable th:nth-child(3),.dtable td.cat{width:24%}
+  .dtable th:nth-child(4),.dtable td.rowact{width:10%}
+  .catpill{max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;padding:1px 7px;font-size:10.5px}
+  .dtable .rowdel{padding:2px 3px;font-size:14px}
+}
 </style>
 </head>
 <body>
