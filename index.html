@@ -419,12 +419,13 @@ html[data-theme="dark"] .sermlink,html[data-theme="night"] .sermlink,html[data-t
 /* ================= TOGGLE LIST (Notion-style collapsible outline) ================= */
 .ntoggle{margin:6px 0}
 .ntog-head{display:flex;align-items:flex-start;gap:4px}
-.ntog-tri{display:inline-flex;align-items:center;justify-content:center;width:24px;min-height:26px;padding:0 2px;cursor:pointer;color:var(--muted);user-select:none;-webkit-user-select:none;flex:0 0 auto;font-size:12px}
+.ntog-tri{display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:34px;padding:0;cursor:pointer;color:var(--muted);user-select:none;-webkit-user-select:none;flex:0 0 auto;font-size:17px;border-radius:8px}
+.ntog-tri:hover{background:var(--surface2);color:var(--accent)}
 .ntog-tri:before{content:'▾'}
 .ntoggle.collapsed .ntog-tri:before{content:'▸'}
 .ntoggle.collapsed .ntog-body{display:none}
 .ntog-title{flex:1;min-width:0;font-weight:600}
-.ntog-body{padding-left:24px;margin-top:2px;min-height:1.4em}
+.ntog-body{padding-left:34px;margin-top:2px;min-height:1.4em}
 /* font picker in the toolbar */
 .tb-font{border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);font-family:var(--sans);font-size:12.5px;padding:5px 6px;max-width:104px}
 /* allow pasted icons/images inside notes */
@@ -445,14 +446,14 @@ html[data-theme="dark"] .sermlink,html[data-theme="night"] .sermlink,html[data-t
 html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,html[data-theme="slate"] .svbody a.vref,html[data-theme="coffee"] .svbody a.vref{color:var(--gold2)}
 
 /* ================= TOGGLE: heading stays put, box drops below ================= */
-.ntog-body{margin:4px 0 6px 24px;padding:6px 12px;border-left:2px solid var(--line);border-radius:0 8px 8px 0;background:var(--surface2);min-height:1.6em}
+.ntog-body{margin:4px 0 6px 34px;padding:6px 12px;border-left:2px solid var(--line);border-radius:0 8px 8px 0;background:var(--surface2);min-height:1.6em}
 .ntog-title{cursor:pointer}
 .tmeta{display:none;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;line-height:1.35}
 
 /* ================= MOBILE ALIGNMENT ================= */
 @media (max-width:560px){
-  .ntog-body{margin-left:18px;padding:5px 9px}
-  .ntog-tri{width:18px}
+  .ntog-body{margin-left:30px;padding:5px 9px}
+  .ntog-tri{width:34px;min-height:34px}
   .sermon-grid{gap:6px}
   .tb{padding:5px;gap:2px}
   .tbb{min-width:32px;min-height:32px;padding:5px 7px}
@@ -660,6 +661,28 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
   .dtable th:nth-child(4),.dtable td.rowact{width:10%}
   .catpill{max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;padding:1px 7px;font-size:10.5px}
   .dtable .rowdel{padding:2px 3px;font-size:14px}
+}
+/* ---- present view: minimal chrome, focus on the words ---- */
+#sermonView .svchips{display:none}
+#sermonView .rmodal-head{background:var(--bg);border-bottom:none;box-shadow:none;transition:transform .25s ease,opacity .25s ease}
+#sermonView .rmodal-head h3{font-size:20px}
+#sermonView .sveyebrow{margin-bottom:3px}
+#sermonView .rmodal-foot{background:var(--bg);border-top:none;transition:transform .25s ease,opacity .25s ease}
+#sermonView.svfocus .rmodal-head{transform:translateY(-100%);opacity:0;pointer-events:none}
+#sermonView.svfocus .rmodal-foot{transform:translateY(100%);opacity:0;pointer-events:none}
+/* sermon editor: auto-save indicator */
+.svstate{font-family:var(--sans);font-size:12px;color:var(--muted);margin-right:auto;align-self:center}
+.svstate.ok{color:var(--accent)}
+html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[data-theme="slate"] .svstate.ok,html[data-theme="coffee"] .svstate.ok{color:var(--gold2)}
+/* ===== PC / large screens: the sermon editor fills the whole screen ===== */
+@media (min-width:601px){
+  #sermonModal{align-items:stretch;justify-content:stretch;background:var(--bg);padding:0}
+  #sermonModal .rmodal{max-width:none;width:100%;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;border-radius:0;background:var(--bg);box-shadow:none}
+  #sermonModal .rmodal-head{padding:16px clamp(20px,5vw,64px);border-bottom:1px solid var(--line)}
+  #sermonModal .rmodal-body{padding:22px clamp(20px,5vw,64px) 40px;display:block}
+  #sermonModal .rmodal-body > *{max-width:920px;margin-left:auto;margin-right:auto}
+  #sermonModal .redit{max-height:none;min-height:56vh}
+  #sermonModal .rmodal-foot{padding:12px clamp(20px,5vw,64px);border-top:1px solid var(--line)}
 }
 </style>
 </head>
@@ -869,7 +892,11 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
   <h3>Backup reminder</h3>
   <p>If you have notes and have not backed up for a while, a reminder appears at the top of the <b>Notes</b> tab. Tap <b>Backup now</b> to save a restorable copy.</p>
   <h3>Backup / Restore</h3>
-  <p><b>Backup</b> saves your notes, bookmarks and settings into one JSON file (you choose the folder). <b>Restore</b> loads it back.</p>
+  <p><b>Backup</b> saves your notes, bookmarks, sermons and settings into one JSON file (you choose where). <b>Restore</b> loads it back. Backups are manual — the app keeps no automatic copy.</p>
+  <h3>Sync between devices (phone ⇄ PC)</h3>
+  <p>The app keeps everything on the device itself and never sends your data anywhere. To move it, use files: on one device tap <b>Backup</b> (or <b>Save a backup file</b>) and save the JSON into a cloud folder you already use — Google Drive, OneDrive, Dropbox. On the other device, open the app and <b>Restore</b> that file. Do this each time you switch, keeping the newest file as your master. Once you have used a backup file, <b>↻ Re-open last backup</b> reads that same file again in one tap — handy when it lives in a synced folder and changes on the other device.</p>
+  <h3>Sermons on other devices</h3>
+  <p>Each sermon can travel on its own. In the sermon editor tap <b>⤓ Export</b> to save it as a file named after its <b>Series - Title</b>; keep those files in a cloud folder to carry a single sermon between phone and PC. In the Sermons tab, <b>Back up</b> writes one <b>Series - Title</b> file per sermon (plus a combined file) into your chosen folder, and <b>Import</b> reads either a single sermon file or a whole library.</p>
   <h3>Commentary import file format</h3>
   <pre style="white-space:pre-wrap;background:var(--surface2);padding:12px;border-radius:10px;font-size:13px">{
  "John 3:16": "The key verse about God's love.",
@@ -999,12 +1026,12 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
       <div class="stats-grid" id="statsGrid"></div>
     </div>
     <div class="setgroup">
-      <h3>Auto backup</h3>
-      <p class="help" style="font-family:var(--sans);font-size:14px;line-height:1.7;margin:0 0 8px">Automatically keeps a restorable copy of your commentary, favorites, labels, highlights and verse edits — saved quietly every time you make a change. Tap <b>Save a backup file</b> whenever you want a copy you can keep or move.</p>
-      <div class="togrow"><span>Auto backup</span><span class="toggle"><input type="checkbox" id="autoBakTog"><span class="toggle-slider"></span></span></div>
+      <h3>Backup &amp; sync</h3>
+      <p class="help" style="font-family:var(--sans);font-size:14px;line-height:1.7;margin:0 0 8px">Saves <b>everything</b> — commentary, favorites, labels, highlights, word notes, sermons and settings — into one file you can keep, move to another device, or drop in a cloud folder to sync phone and PC. <b>Restore</b> reads it back. There is no automatic copy — you are always in control of the file.</p>
       <div class="row" style="margin-top:12px">
         <button class="btn" id="downloadBackupBtn">⬇ Save a backup file</button>
-        <button class="btn ghost" id="restoreAutoBtn">♻ Restore auto-backup</button>
+        <button class="btn ghost" id="restoreAutoBtn">♻ Restore from a file</button>
+        <button class="btn ghost" id="reopenBackupBtn" title="Re-read the last backup file you used">↻ Re-open last backup</button>
       </div>
       <p class="help" id="autoBakStatus" style="font-family:var(--sans);font-size:13px;color:var(--muted);margin:10px 0 0"></p>
     </div>
@@ -1127,10 +1154,11 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
       <div class="redit" id="sermonEditor" contenteditable="true" data-ph="Write your sermon notes here…"></div>
     </div>
     <div class="rmodal-foot">
+      <span class="svstate" id="sermonSaveState"></span>
+      <button class="btn ghost" id="sermonExport">⤓ Export</button>
       <button class="btn ghost" id="sermonDel">🗑 Delete</button>
       <button class="btn ghost" id="sermonPin">📌 Pin above verse</button>
-      <button class="btn ghost" id="sermonCancel">Cancel</button>
-      <button class="btn" id="sermonSave">Save</button>
+      <button class="btn ghost" id="sermonCancel">Close</button>
     </div>
   </div>
 </div>
@@ -2009,7 +2037,8 @@ function doBackup(){
 function doRestore(){
   if(window.showOpenFilePicker){
     showOpenFilePicker({types:[{description:'JSON',accept:{'application/json':['.json']}}],multiple:false})
-      .then(function(hs){return hs[0].getFile();}).then(function(f){return f.text();})
+      .then(function(hs){ var h=hs[0]; try{ metaSet('lastBackupFile', h); settings.lastBackupName = h.name || ''; save(LS.set, settings); }catch(e){} return h.getFile(); })
+      .then(function(f){return f.text();})
       .then(function(txt){ handleRestoreFile(txt); })
       .catch(function(e){if(e&&e.name==='AbortError')return;$('fileBackup').click();});
   }else{$('fileBackup').click();}
@@ -2619,9 +2648,8 @@ function ago(t){
   return Math.floor(h / 24) + 'd ago';
 }
 function scheduleAutoBackup(){
-  if (settings.autoBackup === false) return;
-  clearTimeout(autoBakTimer);
-  autoBakTimer = setTimeout(function(){ doAutoBackup(); }, 2500);
+  /* automatic local snapshot removed — backups are manual only */
+  return;
 }
 function doAutoBackup(){
   try{
@@ -2699,8 +2727,23 @@ async function autoBackupToFolder(){
 }
 function renderAutoBakStatus(){
   var el = $('autoBakStatus'); if (!el) return;
-  var ts = getNum('tbb_autobak_ts_v1');
-  el.textContent = ts ? ('Last auto-save: ' + ago(ts)) : 'Auto-save pending';
+  var ts = getNum(LS_BK);
+  var nm = settings.lastBackupName ? (' · ' + settings.lastBackupName) : '';
+  el.textContent = ts ? ('Last backup file saved: ' + ago(ts) + nm) : (settings.lastBackupName ? ('Last file: ' + settings.lastBackupName) : 'No backup file saved yet');
+}
+async function reopenLastBackup(){
+  var h = null;
+  try{ h = await metaGet('lastBackupFile'); }catch(e){}
+  if (!h){ toast('No last backup remembered — choose a file'); try{ doRestore(); }catch(e){} return; }
+  try{
+    var perm = 'granted';
+    try{ perm = await h.queryPermission({mode: 'read'}); }catch(e){}
+    if (perm !== 'granted'){ try{ perm = await h.requestPermission({mode: 'read'}); }catch(e){} }
+    if (perm !== 'granted'){ toast('Permission needed to read that file'); return; }
+    var f = await h.getFile();
+    var txt = await f.text();
+    handleRestoreFile(txt);
+  }catch(e){ toast('Could not re-open the last backup'); }
 }
 
 /* ---- choose-where-to-save, on desktop AND on phone/PWA ---- */
@@ -2737,7 +2780,7 @@ function saveBackupWithChoice(dataObj, filename, title){
   // Desktop: a real "Save as…" dialog.
   if (window.showSaveFilePicker){
     return window.showSaveFilePicker({suggestedName: filename, types: [{description: 'JSON', accept: {'application/json': ['.json']}}]})
-      .then(function(h){ return h.createWritable().then(function(w){ return w.write(text).then(function(){ return w.close(); }); }); })
+      .then(function(h){ try{ metaSet('lastBackupFile', h); settings.lastBackupName = h.name || filename; save(LS.set, settings); }catch(e){} return h.createWritable().then(function(w){ return w.write(text).then(function(){ return w.close(); }); }); })
       .then(function(){ try{ toast('Backup saved'); }catch(e){} return true; })
       .catch(function(e){ if (e && e.name === 'AbortError') return true; return shareOrDownload(text, filename, title); });
   }
@@ -2911,8 +2954,9 @@ if ($('veReset')) $('veReset').onclick = resetVerseEdit;
 if ($('toolsClose')) $('toolsClose').onclick = function(){ $('toolsSheet').classList.remove('open'); };
 if ($('btnTools')) $('btnTools').onclick = function(){ $('toolsSheet').classList.add('open'); renderStats(); renderAutoBakStatus(); buildIconGrid(); };
 if ($('chooseFolderBtn')) $('chooseFolderBtn').onclick = chooseBackupFolder;
-if ($('restoreAutoBtn')) $('restoreAutoBtn').onclick = restoreAutoBackup;
+if ($('restoreAutoBtn')) $('restoreAutoBtn').onclick = function(){ try{ doRestore(); }catch(e){} };
 if ($('downloadBackupBtn')) $('downloadBackupBtn').onclick = function(){ try{ doBackup(); }catch(e){} };
+if ($('reopenBackupBtn')) $('reopenBackupBtn').onclick = function(){ try{ reopenLastBackup(); }catch(e){} };
 if ($('installBtn3')) $('installBtn3').onclick = promptInstall;
 $('installBannerGo').onclick = promptInstall;
 $('installBannerX').onclick = function(){ hideInstallUI(); localStorage.setItem('installBannerDismissed', '1'); };
@@ -3245,18 +3289,22 @@ function fillSermonForm(s, isNew){
   var b = s.body || '';
   ed.innerHTML = b ? (String(b).indexOf('<') >= 0 ? _sanRich(b).innerHTML : esc(b).replace(/\n/g, '<br>')) : '';
   try{ seHistReset(ed); }catch(e){}
+  try{ clearTimeout(sermonSaveTimer); }catch(e){}
+  try{ var ss = $('sermonSaveState'); if (ss){ ss.textContent = ''; ss.className = 'svstate'; } }catch(e){}
   $('sermonDel').style.display = isNew ? 'none' : '';
   updatePinBtn();
   $('sermonModal').classList.add('open');
   setTimeout(function(){ try{ ed.focus(); }catch(e){} }, 160);
 }
 function newSermon(){
+  try{ flushSermonSave(); }catch(e){}
   sermonCur = {id: 's' + Date.now() + Math.floor(Math.random() * 1000), series: '', title: '', book: '', reference: '', category: '', body: '', pin: '', created: Date.now(), updated: Date.now()};
   fillSermonForm(sermonCur, true);
 }
 function openSermon(id){
   var s = sermons.filter(function(x){ return x.id === id; })[0];
   if (!s) return;
+  try{ flushSermonSave(); }catch(e){}
   sermonCur = s;
   fillSermonForm(s, false);
 }
@@ -3277,7 +3325,10 @@ function openSermonView(id){
   $('svChips').innerHTML = chips.map(function(c){ return '<span class="svchip">' + esc(c) + '</span>'; }).join('');
   var b = s.body || '';
   $('svBody').innerHTML = b ? (String(b).indexOf('<') >= 0 ? _sanRich(b).innerHTML : esc(b).replace(/\n/g, '<br>')) : '<div class="svempty">No notes yet — tap Edit to add some.</div>';
-  $('sermonView').classList.add('open');
+  var svEl = $('sermonView');
+  svEl.classList.remove('svfocus');
+  svEl.classList.add('open');
+  try{ var sc = document.querySelector('#sermonView .rmodal-body'); if (sc) sc.scrollTop = 0; }catch(e){}
 }
 function closeSermonView(){ var v = $('sermonView'); if (v) v.classList.remove('open'); sermonViewId = null; }
 function editSermonView(){ var id = sermonViewId; closeSermonView(); if (id) openSermon(id); }
@@ -3299,6 +3350,37 @@ function saveSermon(){
   if (idx >= 0) sermons[idx] = s; else sermons.push(s);
   saveSermons(); closeSermon(); renderSermons(); refreshSermonLinks();
   toast('Sermon saved');
+}
+/* ---- auto-save: the sermon saves itself as you type ---- */
+var sermonSaveTimer = null;
+function showSermonState(txt, ok){
+  var el = $('sermonSaveState'); if (!el) return;
+  el.textContent = txt || '';
+  el.className = 'svstate' + (ok ? ' ok' : '');
+}
+function autoSaveSermon(){
+  if (!sermonCur) return;
+  var s = collectSermon(); if (!s) return;
+  if (!s.title && !s.series && !richToText(s.body)){ showSermonState(''); return; }
+  var idx = sermons.map(function(x){ return x.id; }).indexOf(s.id);
+  if (idx >= 0) sermons[idx] = s; else sermons.push(s);
+  saveSermons(); renderSermons();
+  showSermonState('Saved', true);
+}
+function scheduleSermonSave(){
+  if (!sermonCur) return;
+  clearTimeout(sermonSaveTimer);
+  showSermonState('Saving…', false);
+  sermonSaveTimer = setTimeout(autoSaveSermon, 800);
+}
+function flushSermonSave(){
+  clearTimeout(sermonSaveTimer);
+  if (sermonCur) autoSaveSermon();
+}
+function closeSermonSaving(){
+  try{ flushSermonSave(); }catch(e){}
+  closeSermon();
+  try{ refreshSermonLinks(); }catch(e){}
 }
 function deleteSermon(){
   if (!sermonCur) return;
@@ -3330,6 +3412,18 @@ function refreshSermonLinks(){ if (S.view === 'read'){ try{ openChapter(S.bi, S.
 /* ---- sermon library: external backup with a remembered folder ---- */
 var sermonDir = null;
 function sermonBackupData(){ return {app: 'my-bible-sermons', version: 1, savedAt: new Date().toISOString(), sermons: sermons}; }
+function sermonFileBase(s){
+  var t = ((s && s.series ? s.series + ' - ' : '') + ((s && s.title) || 'sermon'));
+  t = String(t).replace(/[\\/:*?"<>|\n\r\t]+/g, '-').replace(/\s+/g, ' ').trim();
+  return (t || 'sermon').slice(0, 80);
+}
+function sermonFilePayload(s){ return {app: 'my-bible-sermon', version: 1, savedAt: new Date().toISOString(), sermon: s}; }
+function exportSermonFile(s){
+  if (!s) return;
+  var name = sermonFileBase(s) + '.json';
+  try{ return saveBackupWithChoice(sermonFilePayload(s), name, s.title || 'sermon'); }
+  catch(e){ toast('Could not export'); }
+}
 async function loadSermonDir(){ try{ var h = await metaGet('sermonDir'); if (h) sermonDir = h; }catch(e){} renderSermonBakStatus(); }
 function renderSermonBakStatus(){
   var el = $('sermonBakStatus'); if (!el) return;
@@ -3349,6 +3443,19 @@ async function sermonWriteToDir(){
     var w = await fh.createWritable();
     await w.write(JSON.stringify(sermonBackupData(), null, 1));
     await w.close();
+    /* also write one file per sermon, named "Series - Title.json" */
+    var used = {};
+    for (var i = 0; i < sermons.length; i++){
+      var s = sermons[i]; if (!s) continue;
+      var base = sermonFileBase(s);
+      if (used[base]) base = base + ' (' + (++used[base]) + ')'; else used[base] = 1;
+      try{
+        var sfh = await sermonDir.getFileHandle(base + '.json', {create: true});
+        var sw = await sfh.createWritable();
+        await sw.write(JSON.stringify(sermonFilePayload(s), null, 1));
+        await sw.close();
+      }catch(e){}
+    }
     setNum('tbb_sermonbak_ts_v1', Date.now());
     return true;
   }catch(e){ return false; }
@@ -3378,12 +3485,20 @@ function importSermonsFile(file){
   r.onload = function(){
     try{
       var obj = JSON.parse(r.result);
-      var list = Array.isArray(obj) ? obj : (obj && obj.sermons);
+      var list = Array.isArray(obj) ? obj
+        : (obj && Array.isArray(obj.sermons)) ? obj.sermons
+        : (obj && obj.sermon) ? [obj.sermon]
+        : (obj && obj.id && (obj.title !== undefined || obj.series !== undefined)) ? [obj]
+        : null;
       if (!Array.isArray(list)){ toast('Not a sermons backup'); return; }
-      var added = 0;
-      list.forEach(function(s){ if (s && s.id && !sermons.some(function(x){ return x.id === s.id; })){ sermons.push(s); added++; } });
+      var added = 0, updated = 0;
+      list.forEach(function(s){
+        if (!s || !s.id) return;
+        var i = -1; for (var j = 0; j < sermons.length; j++){ if (sermons[j] && sermons[j].id === s.id){ i = j; break; } }
+        if (i >= 0){ sermons[i] = s; updated++; } else { sermons.push(s); added++; }
+      });
       saveSermons(); renderSermons(); refreshSermonLinks(); renderSermonBakStatus();
-      toast(added ? ('Imported ' + added + ' sermon' + (added === 1 ? '' : 's')) : 'No new sermons');
+      toast((added || updated) ? ('Imported ' + added + ' new' + (updated ? ', updated ' + updated : '') + ((added + updated) === 1 ? ' sermon' : ' sermons')) : 'No changes');
     }catch(e){ toast('Could not read that file'); }
   };
   r.readAsText(file);
@@ -3482,9 +3597,8 @@ function renderSermons(){
   if (sel){ var o = document.createElement('option'); o.value = ''; o.textContent = '— Book —'; sel.appendChild(o);
     BOOKS.forEach(function(b, i){ var x = document.createElement('option'); x.value = String(i); x.textContent = (b.e || b.t); sel.appendChild(x); }); }
   if ($('sermonNew')) $('sermonNew').onclick = newSermon;
-  if ($('sermonClose')) $('sermonClose').onclick = closeSermon;
-  if ($('sermonCancel')) $('sermonCancel').onclick = closeSermon;
-  if ($('sermonSave')) $('sermonSave').onclick = saveSermon;
+  if ($('sermonClose')) $('sermonClose').onclick = closeSermonSaving;
+  if ($('sermonCancel')) $('sermonCancel').onclick = closeSermonSaving;
   if ($('sermonDel')) $('sermonDel').onclick = deleteSermon;
   if ($('sermonPin')) $('sermonPin').onclick = togglePin;
   if ($('sermonSearch')) $('sermonSearch').oninput = renderSermons;
@@ -3496,9 +3610,12 @@ function renderSermons(){
   if ($('sermonPickDir')) $('sermonPickDir').onclick = chooseSermonFolder;
   if ($('sermonBakNow')) $('sermonBakNow').onclick = backupSermonsNow;
   if ($('sermonImport')) $('sermonImport').onclick = function(){ if ($('sermonImportFile')) $('sermonImportFile').click(); };
+  if ($('sermonExport')) $('sermonExport').onclick = function(){ try{ exportSermonFile(collectSermon() || sermonCur); }catch(e){} };
+  ['sTitle','sSeries','sRef','sCategory'].forEach(function(id){ var el = $(id); if (el) el.addEventListener('input', scheduleSermonSave); });
+  if ($('sBook')) $('sBook').addEventListener('change', scheduleSermonSave);
   if ($('sermonImportFile')) $('sermonImportFile').onchange = function(){ if (this.files && this.files[0]) importSermonsFile(this.files[0]); this.value = ''; };
   try{ loadSermonDir(); }catch(e){}
-  var sm = $('sermonModal'); if (sm) sm.addEventListener('click', function(e){ if (e.target === this) closeSermon(); });
+  var sm = $('sermonModal'); if (sm) sm.addEventListener('click', function(e){ if (e.target === this) closeSermonSaving(); });
   document.querySelectorAll('#sermonModal .tbb').forEach(function(b){
     b.addEventListener('mousedown', function(e){ e.preventDefault(); });
     b.addEventListener('click', function(e){
@@ -3519,6 +3636,24 @@ function renderSermons(){
     var t = e.target.closest && e.target.closest('.ntog-tri');
     if (t){ e.preventDefault(); var box = t.closest('.ntoggle'); if (box) box.classList.toggle('collapsed'); }
   });
+  /* present view focus: hide the chrome while reading; bring it back on scroll-up or tap */
+  (function(){
+    var scroller = document.querySelector('#sermonView .rmodal-body');
+    if (!scroller) return;
+    var lastY = 0;
+    scroller.addEventListener('scroll', function(){
+      var v = $('sermonView'); if (!v) return;
+      var y = scroller.scrollTop;
+      if (y > lastY + 6 && y > 48) v.classList.add('svfocus');
+      else if (y < lastY - 6 || y <= 16) v.classList.remove('svfocus');
+      lastY = y;
+    }, {passive:true});
+    if (svb) svb.addEventListener('click', function(e){
+      var el = e.target;
+      if (el && el.closest && el.closest('a,button')) return;
+      var v = $('sermonView'); if (v) v.classList.toggle('svfocus');
+    });
+  })();
   if ($('sermonToggle')) $('sermonToggle').onclick = function(e){ e.preventDefault(); insertToggle($('sermonEditor')); };
   if ($('sermonFont')) $('sermonFont').onchange = function(){ if (this.value) execEditEl($('sermonEditor'), 'fontName', false, this.value); this.selectedIndex = 0; };
   var se = $('sermonEditor');
@@ -3565,6 +3700,7 @@ function renderSermons(){
     /* ---- undo / redo wiring ---- */
     seHistReset(se);
     se.addEventListener('input', function(){ seHistSchedule(se); });
+    se.addEventListener('input', function(){ scheduleSermonSave(); });
     se.addEventListener('keydown', function(e){
       var mod = e.ctrlKey || e.metaKey;
       if (mod && (e.key === 'z' || e.key === 'Z')){ e.preventDefault(); if (e.shiftKey) seRedo(se); else seUndo(se); }
@@ -3632,14 +3768,12 @@ buildTbSwatches();
   try{ buildIconGrid(); }catch(e){}
   try{ applyAppIcon(); }catch(e){}
   try{ setupPWA(); }catch(e){}
-  try{ var av = $('appVer'); if (av) av.textContent = 'App version 4 — updates install automatically'; }catch(e){}
+  try{ var av = $('appVer'); if (av) av.textContent = 'App version 5 — updates install automatically'; }catch(e){}
   try{ loadBakDir(); }catch(e){}
   window.addEventListener('beforeinstallprompt', function(){ setTimeout(showInstallUI, 60); });
   window.addEventListener('appinstalled', function(){ hideInstallUI(); });
   if (location.protocol !== 'file:' && !isStandalone()) setTimeout(showInstallUI, 2600);
-  if (settings.autoBackup !== false){ try{ doAutoBackup(); }catch(e){} }
-  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden' && settings.autoBackup !== false){ try{ doAutoBackup(); }catch(e){} } });
-  window.addEventListener('pagehide', function(){ if (settings.autoBackup !== false){ try{ doAutoBackup(); }catch(e){} } });
+  /* automatic snapshots removed — backups are manual only */
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ var m = $('richModal'); if (m && m.classList.contains('open')) closeRich(); } });
 })();
 
