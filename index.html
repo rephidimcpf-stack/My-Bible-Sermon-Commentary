@@ -503,6 +503,7 @@ html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,h
 /* ================= TOGGLE: heading stays put, box drops below ================= */
 .ntog-body{margin:4px 0 6px 34px;padding:6px 12px;border-left:2px solid var(--line);border-radius:0 8px 8px 0;background:var(--surface2);min-height:1.6em}
 .ntog-title{cursor:pointer}
+.ntog-title:empty::before{content:attr(data-ph);color:var(--muted);font-weight:600;pointer-events:none}
 .tmeta{display:none;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;line-height:1.35}
 
 /* ================= MOBILE ALIGNMENT ================= */
@@ -1103,6 +1104,26 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   #sermonView .svtools .btn{font-size:11px;min-height:36px;padding:6px 2px}
 }
 /* === end soft mobile fit === */
+
+/* ================= MOBILE TAP-TARGET FLOOR (final override) =================
+   Guarantee every interactive control is comfortably tappable on phones.
+   Placed last so it wins over the earlier compact-mobile rules. */
+@media (max-width:560px){
+  .hbtn{width:44px;height:44px;font-size:21px}
+  .xbtn{width:44px;height:44px}
+  .rb{padding:10px 15px;font-size:13.5px;min-height:44px}
+  .navbtn{min-height:48px}
+  button.veditbtn{width:40px;height:40px;font-size:17px}
+  .spk{width:40px;height:40px;font-size:16px}
+  .tbb{min-width:40px;min-height:40px;padding:6px 8px}
+  .tb-color{width:36px;height:36px}
+  .tbs{width:26px;height:26px}
+  .tb-div{height:26px}
+  .sechead{min-height:44px}
+  .pill{min-height:34px;display:inline-flex;align-items:center}
+  .markbar .btn{min-height:38px}
+  .act{min-height:44px}
+}
 
 </style>
 </head>
@@ -3706,37 +3727,153 @@ function _sanRich(html){
   }
   return d;
 }
+/* ---- toggle-list helpers ----------------------------------------------------
+   A clean toggle box looks like:
+     <div class="ntoggle">
+       <div class="ntog-head">
+         <span class="ntog-tri" contenteditable="false"></span>
+         <span class="ntog-title" data-ph="Toggle"></span>
+       </div>
+       <div class="ntog-body"> ...content... </div>
+     </div>
+   The title is the editable heading line; the body holds the detail below it. */
+var NTOG_PH = 'Toggle';
+function _ntogSetCaret(el, atEnd){
+  if (!el) return;
+  try{
+    var r = document.createRange();
+    r.selectNodeContents(el);
+    r.collapse(!atEnd);
+    var s = window.getSelection();
+    if (!s) return;
+    s.removeAllRanges(); s.addRange(r);
+  }catch(e){}
+}
+function _ntogEmptyTitle(t){
+  return !t || !String(t.textContent || '').replace(/\u200b/g, '').trim();
+}
+function _ntogBuild(){
+  var box = document.createElement('div');
+  box.className = 'ntoggle';
+  var head = document.createElement('div');
+  head.className = 'ntog-head';
+  var tri = document.createElement('span');
+  tri.className = 'ntog-tri';
+  tri.setAttribute('contenteditable', 'false');
+  var title = document.createElement('span');
+  title.className = 'ntog-title';
+  title.setAttribute('data-ph', NTOG_PH);
+  head.appendChild(tri);
+  head.appendChild(title);
+  var body = document.createElement('div');
+  body.className = 'ntog-body';
+  body.innerHTML = '<p><br></p>';
+  box.appendChild(head);
+  box.appendChild(body);
+  return box;
+}
+/* Repair malformed toggle boxes (old or corrupted data) so the outline renders
+   correctly again: exactly one head / tri / title and one body; duplicated title
+   spans merged; blocks that escaped the body pulled back in; boxes that got
+   nested inside a heading lifted back out; the old auto "Toggle" label cleared so
+   it shows as a placeholder instead of as content. */
+function _ntogRepair(root){
+  if (!root || !root.querySelectorAll) return;
+  var boxes = root.querySelectorAll('.ntoggle');
+  for (var i = 0; i < boxes.length; i++){
+    var box = boxes[i];
+    var head = box.querySelector(':scope > .ntog-head');
+    var body = box.querySelector(':scope > .ntog-body');
+    if (!head){
+      head = document.createElement('div');
+      head.className = 'ntog-head';
+      box.insertBefore(head, box.firstChild);
+    }
+    if (!head.querySelector('.ntog-tri')){
+      var tri = document.createElement('span');
+      tri.className = 'ntog-tri';
+      tri.setAttribute('contenteditable', 'false');
+      head.insertBefore(tri, head.firstChild);
+    }
+    var title = head.querySelector('.ntog-title');
+    if (!title){
+      title = document.createElement('span');
+      title.className = 'ntog-title';
+      head.appendChild(title);
+    }
+    if (!title.getAttribute('data-ph')) title.setAttribute('data-ph', NTOG_PH);
+    /* merge any duplicated title spans into the first one */
+    var dupes = head.querySelectorAll('.ntog-title');
+    for (var d = dupes.length - 1; d >= 1; d--){
+      var dup = dupes[d];
+      while (dup.firstChild) title.appendChild(dup.firstChild);
+      if (dup.parentNode) dup.parentNode.removeChild(dup);
+    }
+    /* lift any toggle that got nested inside the head back out, after this box */
+    var nested = head.querySelectorAll('.ntoggle');
+    for (var n = nested.length - 1; n >= 0; n--){
+      var nb = nested[n];
+      if (nb.parentNode && nb.parentNode !== box) nb.parentNode.insertBefore(nb, box.nextSibling);
+    }
+    if (!body){
+      body = document.createElement('div');
+      body.className = 'ntog-body';
+      box.appendChild(body);
+    }
+    /* pull back any block that ended up directly under .ntoggle (outside head/body) */
+    var kids = Array.prototype.slice.call(box.childNodes);
+    for (var c = 0; c < kids.length; c++){
+      var node = kids[c];
+      if (node === head || node === body) continue;
+      if (node.nodeType === 1 && (node.classList.contains('ntog-head') || node.classList.contains('ntog-body'))) continue;
+      if (node.nodeType === 3 && !String(node.nodeValue || '').trim()){ box.removeChild(node); continue; }
+      body.appendChild(node);
+    }
+    /* the old auto-inserted "Toggle" label was a placeholder, not content */
+    if (String(title.textContent || '').trim() === NTOG_PH) title.innerHTML = '';
+    if (!body.childNodes.length) body.innerHTML = '<p><br></p>';
+  }
+}
 function insertToggle(ed){
   if (!ed) return;
   ed.focus();
-  var html = '<div class="ntoggle" data-new="1"><div class="ntog-head"><span class="ntog-tri" contenteditable="false"></span><span class="ntog-title">Toggle</span></div><div class="ntog-body"><p><br></p></div></div><p><br></p>';
-  var done = false;
-  try{ done = document.execCommand('insertHTML', false, html); }catch(e){}
-  if (!done){ try{ var t = document.createElement('div'); t.innerHTML = html; while (t.firstChild) ed.appendChild(t.firstChild); }catch(e2){} }
-  /* drop the caret inside the new toggle's body so you can type straight away,
-     and never leave it sitting in the fold arrow or a collapsed box */
+  var box = _ntogBuild();
+  var trail = document.createElement('p');
+  trail.innerHTML = '<br>';
+  /* choose a block-level anchor so a new toggle is never nested inside another
+     toggle's head or body (that used to scramble the whole outline) */
+  var anchor = null;
   try{
-    var box = ed.querySelector('.ntoggle[data-new="1"]');
-    if (box){
-      box.removeAttribute('data-new');
-      box.classList.remove('collapsed');
-      /* ensure a paragraph after the box so the caret can leave the toggle later */
-      var next = box.nextSibling;
-      if (!next || (next.nodeType === 1 && next.classList && next.classList.contains('ntoggle'))){
-        var trail = document.createElement('p');
-        trail.innerHTML = '<br>';
-        box.parentNode.insertBefore(trail, box.nextSibling);
+    var sel = window.getSelection();
+    if (sel && sel.rangeCount){
+      var r = sel.getRangeAt(0);
+      var node = r.startContainer;
+      var el = node.nodeType === 1 ? node : node.parentNode;
+      if (el && el !== ed && el.closest && ed.contains(el)){
+        var inTog = el.closest('.ntoggle');
+        if (inTog && ed.contains(inTog)) anchor = inTog;
+        else {
+          var b = el;
+          while (b && b.parentNode && b.parentNode !== ed) b = b.parentNode;
+          if (b && b !== ed && b.parentNode === ed) anchor = b;
+        }
       }
-      var p = box.querySelector('.ntog-body p') || box.querySelector('.ntog-body');
-      if (p){
-        if (!p.childNodes.length) p.innerHTML = '<br>';
-        var r = document.createRange(); r.selectNodeContents(p); r.collapse(true);
-        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
-      }
-      try{ ed.focus(); }catch(e0){}
     }
   }catch(e){}
+  if (anchor){
+    if (anchor.nextSibling) ed.insertBefore(trail, anchor.nextSibling);
+    else ed.appendChild(trail);
+    ed.insertBefore(box, trail);
+  } else {
+    ed.appendChild(box);
+    ed.appendChild(trail);
+  }
+  box.classList.remove('collapsed');
+  /* put the caret in the title so the heading is what gets typed first */
+  _ntogSetCaret(box.querySelector('.ntog-title'), true);
+  try{ ed.focus(); }catch(e){}
   try{ seHistPush(ed); }catch(e){}
+  try{ scheduleSermonSave(); }catch(e){}
 }
 /* ---- sermon editor undo / redo (snapshot history) ---- */
 var seHist = { stack: [], idx: -1, timer: null };
@@ -3826,6 +3963,7 @@ function fillSermonForm(s, isNew){
   var ed = $('sermonEditor');
   var b = s.body || '';
   ed.innerHTML = b ? (String(b).indexOf('<') >= 0 ? _sanRich(b).innerHTML : esc(b).replace(/\n/g, '<br>')) : '';
+  try{ _ntogRepair(ed); }catch(e){}
   try{ seHistReset(ed); }catch(e){}
   try{ clearTimeout(sermonSaveTimer); }catch(e){}
   try{ var ss = $('sermonSaveState'); if (ss){ ss.textContent = ''; ss.className = 'svstate'; } }catch(e){}
@@ -4021,6 +4159,7 @@ function openSermonView(id, opts){
   $('svChips').innerHTML = chips.map(function(c){ return '<span class="svchip">' + esc(c) + '</span>'; }).join('');
   var b = s.body || '';
   $('svBody').innerHTML = b ? (String(b).indexOf('<') >= 0 ? _sanRich(b).innerHTML : esc(b).replace(/\n/g, '<br>')) : '<div class="svempty">No notes yet — tap Edit to add some.</div>';
+  try{ _ntogRepair($('svBody')); }catch(e){}
   var svEl = $('sermonView');
   svEl.classList.toggle('svfocus', !!opts.focus);
   svEl.classList.toggle('svpresenting', !!opts.focus);
@@ -4460,8 +4599,18 @@ function renderSermons(){
        so it never stays trapped inside a hidden .ntog-body. */
     se.addEventListener('mousedown', function(e){
       var tri = e.target.closest && e.target.closest('.ntog-tri');
-      if (!tri) return;
-      e.preventDefault(); /* stop browser from parking the caret on the arrow */
+      if (tri){ e.preventDefault(); return; } /* stop browser parking the caret on the arrow */
+      /* Clicking anywhere on a toggle's heading should put the caret in its title
+         so the heading can be typed or renamed — even when the title is empty. */
+      var head = e.target.closest && e.target.closest('.ntog-head');
+      if (head){
+        var ttl = head.querySelector('.ntog-title');
+        if (ttl && e.target !== ttl && !ttl.contains(e.target)){
+          e.preventDefault();
+          _ntogSetCaret(ttl, true);
+          try{ se.focus(); }catch(err){}
+        }
+      }
     }, true);
     se.addEventListener('click', function(e){
       var tri = e.target.closest && e.target.closest('.ntog-tri');
@@ -4472,62 +4621,144 @@ function renderSermons(){
       var collapsing = !box.classList.contains('collapsed');
       box.classList.toggle('collapsed');
       try{
-        var sel = window.getSelection();
-        if (!sel) return;
         if (collapsing){
-          /* Caret must leave the hidden body — put it after this toggle box */
-          var after = box.nextSibling;
-          while (after && after.nodeType === 3 && !String(after.nodeValue || '').trim()) after = after.nextSibling;
-          if (!after || (after.nodeType === 1 && after.classList && after.classList.contains('ntoggle'))){
-            var p = document.createElement('p');
-            p.innerHTML = '<br>';
-            box.parentNode.insertBefore(p, box.nextSibling);
-            after = p;
+          /* Keep the caret on the toggle's own heading line — never park it on a
+             blank row below the box — and drop the empty landing paragraph, so
+             collapsing neither adds a line space nor leaves a blinking caret on
+             an empty line. */
+          _ntogSetCaret(box.querySelector('.ntog-title'), true);
+          var nx = box.nextSibling;
+          while (nx && nx.nodeType === 3 && !String(nx.nodeValue || '').trim()) nx = nx.nextSibling;
+          if (nx && nx.nodeType === 1 && nx.tagName === 'P' && !String(nx.textContent || '').trim() && !nx.querySelector('img,hr,table,iframe')){
+            var rest = nx.nextSibling;
+            while (rest && rest.nodeType === 3 && !String(rest.nodeValue || '').trim()) rest = rest.nextSibling;
+            if (!rest || (rest.nodeType === 1 && rest.classList && rest.classList.contains('ntoggle'))){
+              nx.parentNode.removeChild(nx);
+            }
           }
-          var r = document.createRange();
-          if (after.nodeType === 3){
-            r.setStart(after, Math.min(after.nodeValue.length, 0));
-            r.collapse(true);
-          } else {
-            r.selectNodeContents(after);
-            r.collapse(true);
-          }
-          sel.removeAllRanges();
-          sel.addRange(r);
           try{ se.focus(); }catch(err2){}
         } else {
-          /* Expanding — put caret at the start of the body so typing continues there */
-          var body = box.querySelector('.ntog-body');
-          var target = body && (body.querySelector('p,div,li') || body);
-          if (target){
-            if (!target.childNodes.length) target.innerHTML = '<br>';
-            var r2 = document.createRange();
-            r2.selectNodeContents(target);
-            r2.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(r2);
-            try{ se.focus(); }catch(err3){}
+          /* Expanding — reveal the body. The caret stays put; a landing paragraph
+             is restored after the box only when the toggle is the last block, so
+             there is still somewhere to type below it. */
+          var afterBox = box.nextSibling;
+          while (afterBox && afterBox.nodeType === 3 && !String(afterBox.nodeValue || '').trim()) afterBox = afterBox.nextSibling;
+          if (!afterBox){
+            var tp = document.createElement('p');
+            tp.innerHTML = '<br>';
+            box.parentNode.insertBefore(tp, box.nextSibling);
           }
         }
       }catch(err){}
       try{ scheduleSermonSave(); }catch(err4){}
     });
-    /* keep Enter inside a toggle box: start a new line in the same box instead of
-       letting the browser clone the box. (Also handles boxes with no inner block.) */
+    /* Keep Enter inside a toggle: in the title it moves the caret down into the
+       body; in the body it starts a new line inside the box instead of cloning or
+       escaping the toggle. */
     se.addEventListener('keydown', function(e){
       if (e.key !== 'Enter' || e.shiftKey || e.ctrlKey || e.metaKey) return;
       var sel = getSelection(); if (!sel || !sel.rangeCount) return;
       var node = sel.getRangeAt(0).startContainer;
       var el = node.nodeType === 1 ? node : node.parentNode;
       if (!el || !el.closest) return;
-      var body = el.closest('.ntog-body'); if (!body) return;
-      if (el === body){ e.preventDefault(); document.execCommand('insertHTML', false, '<p><br></p>'); }
+      var title = el.closest('.ntog-title');
+      if (title){
+        e.preventDefault();
+        var box = title.closest('.ntoggle'); if (!box) return;
+        var body = box.querySelector('.ntog-body');
+        if (!body){
+          body = document.createElement('div');
+          body.className = 'ntog-body';
+          box.appendChild(body);
+        }
+        var blocks = body.querySelectorAll('p,div,li,h1,h2,h3,h4,blockquote');
+        var last = blocks.length ? blocks[blocks.length - 1] : body;
+        if (!last.childNodes.length) last.innerHTML = '<br>';
+        _ntogSetCaret(last, true);
+        try{ scheduleSermonSave(); }catch(err){}
+        return;
+      }
+      var bodyEl = el.closest('.ntog-body');
+      if (!bodyEl) return;
+      if (el === bodyEl){
+        e.preventDefault();
+        document.execCommand('insertHTML', false, '<p><br></p>');
+      }
     });
     /* formatted copy/paste: keep fonts, icons and images from the clipboard, strip scripts */
     se.addEventListener('paste', function(e){
       var cd = e.clipboardData; if (!cd) return;
       var html = cd.getData('text/html');
-      if (html){ e.preventDefault(); document.execCommand('insertHTML', false, _sanRich(html).innerHTML); }
+      if (html){
+        e.preventDefault();
+        document.execCommand('insertHTML', false, _sanRich(html).innerHTML);
+        try{ _ntogRepair(se); }catch(err){}
+      }
+    });
+    /* Protect the toggle structure from the keys that used to scramble it:
+       Backspace at the very start of a title or of the body's first line must not
+       drag content up into the heading, and Tab in the title jumps to the body. */
+    se.addEventListener('keydown', function(e){
+      if (e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'Tab') return;
+      var sel = getSelection(); if (!sel || !sel.rangeCount) return;
+      var r = sel.getRangeAt(0);
+      var node = r.startContainer;
+      var el = node.nodeType === 1 ? node : node.parentNode;
+      if (!el || !el.closest) return;
+      var title = el.closest('.ntog-title');
+      var bodyEl = el.closest('.ntog-body');
+      if (!title && !bodyEl) return;
+      function edgeEmpty(container, atEnd){
+        try{
+          var c = r.cloneRange();
+          c.selectNodeContents(container);
+          if (atEnd) c.setStart(r.startContainer, r.startOffset);
+          else c.setEnd(r.startContainer, r.startOffset);
+          return c.toString().length === 0;
+        }catch(err){ return false; }
+      }
+      if (e.key === 'Tab' && title){
+        e.preventDefault();
+        var box = title.closest('.ntoggle'); if (!box) return;
+        var body = box.querySelector('.ntog-body');
+        if (body){
+          var first = body.querySelector('p,div,li,h1,h2,h3,h4,blockquote') || body;
+          _ntogSetCaret(first, false);
+          try{ se.focus(); }catch(err){}
+        }
+        return;
+      }
+      if (!r.collapsed) return;
+      if (title){
+        if (e.key === 'Backspace' && edgeEmpty(title, false)){
+          e.preventDefault();
+          var tbox = title.closest('.ntoggle');
+          if (!tbox) return;
+          var tbody = tbox.querySelector('.ntog-body');
+          var empty = _ntogEmptyTitle(title) && (!tbody || !String(tbody.textContent || '').replace(/​/g, '').trim());
+          if (empty){
+            /* remove the whole empty box and park the caret just before it */
+            var prev = tbox.previousSibling, parent = tbox.parentNode;
+            parent.removeChild(tbox);
+            while (prev && prev.nodeType === 3 && !String(prev.nodeValue || '').trim()) prev = prev.previousSibling;
+            if (prev && prev.nodeType === 1 && prev.classList && prev.classList.contains('ntoggle')) prev = null;
+            if (prev){
+              var rr = document.createRange();
+              if (prev.nodeType === 3){ rr.setStart(prev, prev.nodeValue.length); rr.collapse(true); }
+              else { rr.selectNodeContents(prev); rr.collapse(false); }
+              sel.removeAllRanges(); sel.addRange(rr);
+            }
+          }
+          try{ scheduleSermonSave(); }catch(err){}
+          return;
+        }
+        if (e.key === 'Delete' && edgeEmpty(title, true)){ e.preventDefault(); return; }
+        return;
+      }
+      /* inside the body: never let Backspace drag the first line up into the head */
+      var firstBlock = bodyEl.querySelector('p,div,li,h1,h2,h3,h4,blockquote');
+      if (e.key === 'Backspace' && firstBlock && edgeEmpty(firstBlock, false)){ e.preventDefault(); return; }
+      if (e.key === 'Backspace' && el === bodyEl && edgeEmpty(bodyEl, false)){ e.preventDefault(); return; }
     });
     /* ---- undo / redo wiring ---- */
     seHistReset(se);
