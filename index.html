@@ -146,9 +146,49 @@ textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:
 .spk:hover{opacity:1;background:var(--surface2);color:var(--accent)}
 .spk.on{opacity:1;color:var(--accent)}
 .rb.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-.selbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 24px rgba(0,0,0,.18);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:none;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center}
+/* Selection footer: compact, neat on phones; sits above content without a messy overlap */
+.selbar{
+  position:fixed;left:0;right:0;
+  bottom:calc(56px + env(safe-area-inset-bottom, 0px));
+  z-index:55;
+  background:var(--surface);border-top:1px solid var(--line);
+  box-shadow:0 -6px 24px rgba(0,0,0,.18);
+  padding:10px 12px;
+  display:none;flex-direction:column;flex-wrap:nowrap;gap:8px;
+  align-items:stretch;justify-content:flex-start;
+}
 .selbar.show{display:flex}
-.selbar .cnt{width:100%;text-align:center;font-family:var(--sans);font-size:14px;color:var(--accent);font-weight:700}
+.selbar .cnt{width:100%;text-align:center;font-family:var(--sans);font-size:13.5px;color:var(--accent);font-weight:700;margin:0;padding:0}
+.selbar .hlrow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;width:100%;font-family:var(--sans);font-size:13px;color:var(--muted)}
+.selbar .hlrow .hllbl{flex-shrink:0}
+.selbar .row{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;width:100% !important;justify-content:stretch !important;margin:0}
+.selbar .row .btn{
+  width:100%;min-width:0;min-height:42px;padding:8px 6px;font-size:13px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;border-radius:11px;
+}
+/* Selection bar sits ABOVE the tab bar — never hide the footer menu */
+.selbar{
+  bottom:calc(56px + env(safe-area-inset-bottom, 0px));
+  padding:10px 12px 10px;
+  z-index:55;
+}
+.selbar.show{display:flex}
+/* extra space so last verses stay above the selection bar + tab bar */
+body.selecting-mode .wrap{padding-bottom:calc(200px + env(safe-area-inset-bottom, 0px))}
+body.selecting-mode #viewSearch.wrap{padding-bottom:calc(150px + env(safe-area-inset-bottom, 0px))}
+@media (max-width:560px){
+  .selbar{bottom:calc(54px + env(safe-area-inset-bottom, 0px));padding:8px 10px;gap:7px}
+  .selbar .cnt{font-size:12.5px}
+  .selbar .hlrow{gap:6px}
+  .hlsw{width:30px;height:30px;border-radius:8px}
+  .selbar .row{gap:5px}
+  .selbar .row .btn{min-height:40px;padding:7px 4px;font-size:12.5px}
+  body.selecting-mode .wrap{padding-bottom:calc(190px + env(safe-area-inset-bottom, 0px))}
+}
+@media (max-width:380px){
+  .selbar .row .btn{min-height:38px;font-size:11.5px;padding:6px 2px}
+  .hlsw{width:28px;height:28px}
+}
 .hlrow{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:13px;color:var(--muted)}
 .hlrow #hlColors{display:inline-flex;gap:8px}
 .hlsw{width:32px;height:32px;border-radius:9px;border:2px solid var(--line);display:grid;place-items:center;font-size:14px;color:var(--muted)}
@@ -158,10 +198,11 @@ textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:
 .result .rcb{flex:0 0 auto;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg);font-size:17px;color:var(--muted);display:grid;place-items:center;margin-top:2px}
 .result .rcb.on{border-color:var(--accent);color:var(--accent);background:var(--surface2)}
 .result .rbody{flex:1;min-width:0}
-.whlbar{position:fixed;z-index:86;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:6px;display:none;gap:8px;align-items:center}
+.whlbar{position:fixed;z-index:200;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:7px 8px;display:none;gap:6px;align-items:center;flex-wrap:nowrap;box-sizing:border-box;max-width:calc(100vw - 16px);overflow:visible}
 .whlbar.show{display:flex}
-.whlbar #whlColors{display:inline-flex;gap:8px}
-.whlbar .hlsw{width:30px;height:30px}
+.whlbar #whlColors{display:inline-flex;gap:6px;flex-shrink:0}
+.whlbar .hlsw{width:32px;height:32px;flex-shrink:0;border-radius:9px;box-sizing:border-box}
+.whlbar #whlCmBtn{flex-shrink:0;margin:0;font-size:15px;line-height:1}
 mark.whl{border-radius:3px;padding:0 1px;color:inherit}
 .wcm{border-bottom:2px dotted var(--accent);cursor:pointer}
 .whlcbar{flex-direction:column;align-items:stretch;padding:10px;width:min(88vw,340px)}
@@ -419,7 +460,9 @@ html[data-theme="dark"] .sermlink,html[data-theme="night"] .sermlink,html[data-t
 /* ================= TOGGLE LIST (Notion-style collapsible outline) ================= */
 .ntoggle{margin:6px 0}
 .ntog-head{display:flex;align-items:flex-start;gap:4px}
-.ntog-tri{display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:34px;padding:0;cursor:pointer;color:var(--muted);user-select:none;-webkit-user-select:none;flex:0 0 auto;font-size:17px;border-radius:8px}
+.ntog-tri{display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:34px;padding:0;cursor:pointer;color:var(--muted);user-select:none;-webkit-user-select:none;-webkit-user-modify:read-only;flex:0 0 auto;font-size:17px;border-radius:8px;caret-color:transparent}
+.ntog-head{user-select:none;-webkit-user-select:none}
+.ntog-title{user-select:text;-webkit-user-select:text;caret-color:auto}
 .ntog-tri:hover{background:var(--surface2);color:var(--accent)}
 .ntog-tri:before{content:'▾'}
 .ntoggle.collapsed .ntog-tri:before{content:'▸'}
@@ -670,6 +713,24 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
 #sermonView .rmodal-foot{background:var(--bg);border-top:none;transition:transform .25s ease,opacity .25s ease}
 #sermonView.svfocus .rmodal-head{transform:translateY(-100%);opacity:0;pointer-events:none}
 #sermonView.svfocus .rmodal-foot{transform:translateY(100%);opacity:0;pointer-events:none}
+#sermonView.svheld{display:flex !important;opacity:0 !important;pointer-events:none !important;z-index:1 !important}
+#sermonView .rmodal-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+#sermonView .svtools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-right:auto}
+#sermonView .svtools .btn{min-height:36px;padding:8px 12px;font-size:13px}
+#sermonView .svtools .svfs{font-weight:700;min-width:42px;padding:8px 10px}
+#sermonView .svbody{font-size:var(--sv-fs, 1.1em);transition:font-size .15s ease}
+#sermonView.svpresenting .svbody{font-size:var(--sv-fs, 1.2em)}
+.rowpresent{background:transparent;border:0;cursor:pointer;font-size:16px;padding:4px 6px;opacity:.75}
+.rowpresent:hover{opacity:1}
+.svback{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom, 0px) + 72px);transform:translateX(-50%);z-index:190;display:flex;align-items:center;gap:4px;background:var(--accent);color:#fff;border-radius:999px;box-shadow:0 8px 28px rgba(0,0,0,.28);padding:4px 4px 4px 6px;max-width:min(92vw,420px)}
+.svback[hidden]{display:none !important}
+.svback-btn{appearance:none;border:0;background:transparent;color:#fff;font-family:var(--sans);font-size:14.5px;font-weight:700;padding:10px 14px;cursor:pointer;white-space:nowrap;border-radius:999px}
+.svback-btn:active{opacity:.85}
+.svback-x{appearance:none;border:0;background:rgba(255,255,255,.18);color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+html[data-theme="dark"] .svback,html[data-theme="night"] .svback,html[data-theme="slate"] .svback,html[data-theme="coffee"] .svback{background:var(--gold2);color:#1a1208}
+html[data-theme="dark"] .svback-btn,html[data-theme="night"] .svback-btn,html[data-theme="slate"] .svback-btn,html[data-theme="coffee"] .svback-btn,
+html[data-theme="dark"] .svback-x,html[data-theme="night"] .svback-x,html[data-theme="slate"] .svback-x,html[data-theme="coffee"] .svback-x{color:#1a1208}
+html[data-theme="dark"] .svback-x,html[data-theme="night"] .svback-x,html[data-theme="slate"] .svback-x,html[data-theme="coffee"] .svback-x{background:rgba(0,0,0,.12)}
 /* sermon editor: auto-save indicator */
 .svstate{font-family:var(--sans);font-size:12px;color:var(--muted);margin-right:auto;align-self:center}
 .svstate.ok{color:var(--accent)}
@@ -684,6 +745,353 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   #sermonModal .redit{max-height:none;min-height:56vh}
   #sermonModal .rmodal-foot{padding:12px clamp(20px,5vw,64px);border-top:1px solid var(--line)}
 }
+
+/* ========== Mobile portrait: neat, tidy button rows ========== */
+@media (max-width:560px){
+  /* Present / reader view footer: 3 equal columns, 2 tidy rows */
+  #sermonView .rmodal-foot{
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    padding:10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    align-items:stretch;
+  }
+  #sermonView .svtools{
+    display:contents; /* children join the parent grid */
+    margin:0;
+  }
+  #sermonView .rmodal-foot > .btn,
+  #sermonView .svtools .btn{
+    width:100%;
+    min-width:0;
+    min-height:40px;
+    padding:8px 4px;
+    font-size:12px;
+    line-height:1.2;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin:0;
+    border-radius:10px;
+  }
+  #sermonView .svtools .svfs{
+    min-width:0;
+    padding:8px 4px;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  /* Sermon editor footer: wrap into a clean 2-column grid */
+  #sermonModal .rmodal-foot{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    align-items:stretch;
+  }
+  #sermonModal .rmodal-foot .svstate{
+    grid-column:1 / -1;
+    margin:0 0 2px;
+    text-align:center;
+  }
+  #sermonModal .rmodal-foot .btn{
+    width:100%;
+    min-width:0;
+    min-height:40px;
+    padding:8px 8px;
+    font-size:12.5px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    margin:0;
+  }
+
+  /* Rich commentary editor footer (if present) */
+  #richModal .rmodal-foot{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+  #richModal .rmodal-foot .btn{
+    flex:1 1 calc(50% - 6px);
+    min-width:0;
+    min-height:40px;
+    padding:8px 8px;
+    font-size:12.5px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Verse panel actions already 2x2 — tighten touch targets */
+  .pactions{gap:6px;margin-top:10px}
+  .pactions .btn{min-height:40px;font-size:12.5px;padding:8px 6px}
+
+  /* Notes tab action buttons */
+  #viewNotes > .row{gap:6px}
+  #viewNotes > .row .btn{min-height:40px;font-size:12.5px;padding:8px 6px}
+
+  /* Sermon library top bar */
+  .sermon-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .sermon-bar input{flex:1 1 140px;min-width:0}
+  .sermon-bar .btn{flex:0 0 auto;min-height:40px;padding:8px 12px;font-size:13px}
+  .sermon-filters{display:flex;flex-wrap:wrap;gap:6px}
+  .sermon-filters select,
+  .sermon-filters .btn{
+    flex:1 1 calc(50% - 6px);
+    min-width:0;
+    max-width:100%;
+    font-size:12.5px;
+    padding:8px 8px;
+  }
+  .sb-actions{gap:6px}
+  .sb-actions .btn{flex:1 1 calc(50% - 6px);min-height:40px;padding:8px 8px;font-size:12.5px}
+
+  /* Tools sheet rows */
+  #toolsSheet .row{display:flex;flex-wrap:wrap;gap:6px}
+  #toolsSheet .row .btn{
+    flex:1 1 calc(50% - 6px);
+    min-width:0;
+    min-height:40px;
+    padding:8px 8px;
+    font-size:12.5px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* markbar only — do NOT force #selBar visible (it must stay hidden until Select) */
+  .markbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .markbar .btn{min-height:36px;padding:7px 10px;font-size:12.5px}
+
+  /* Back-to-sermon pill: stay inside the screen */
+  .svback{
+    max-width:calc(100vw - 24px);
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 64px);
+  }
+  .svback-btn{font-size:13px;padding:9px 12px;max-width:70vw;overflow:hidden;text-overflow:ellipsis}
+}
+
+/* Extra-narrow phones (≤380px): even tighter present toolbar */
+@media (max-width:380px){
+  #sermonView .rmodal-foot{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:5px;
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  #sermonView .rmodal-foot > .btn,
+  #sermonView .svtools .btn{
+    min-height:38px;
+    padding:6px 2px;
+    font-size:11px;
+  }
+  #sermonModal .rmodal-foot .btn{font-size:11.5px;padding:7px 4px;min-height:38px}
+}
+
+/* === end mobile portrait tidy === */
+
+/* word-selection highlight bar enabled */
+
+/* ========== Soft mobile fit (portrait) ========== */
+@media (max-width:560px){
+  /* base spacing */
+  .wrap{
+    padding:10px 12px calc(88px + env(safe-area-inset-bottom, 0px));
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  header .hbar,
+  .hbar{
+    padding-left:10px;
+    padding-right:10px;
+    gap:6px;
+  }
+  .htitle b{font-size:15px}
+  .htitle span{font-size:11px;max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* reader controls — soft pills that wrap cleanly */
+  .readbar{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:6px;
+    margin:0 0 10px;
+    padding:0 2px;
+  }
+  .rb{
+    padding:7px 12px;
+    font-size:12.5px;
+    border-radius:999px;
+    gap:4px;
+    max-width:100%;
+    min-height:36px;
+    box-sizing:border-box;
+  }
+  .rb b{font-weight:700}
+
+  .chapter-head{margin:4px 0 10px}
+  .chapter-head h1{font-size:22px}
+  .chapter-head .cn{font-size:12.5px;letter-spacing:1.5px}
+  .chapter-head .rule{width:56px;height:2.5px;margin:8px auto 0}
+
+  /* verses — soft, readable, no overflow */
+  .verse{
+    gap:8px;
+    padding:7px 8px;
+    border-radius:12px;
+  }
+  .verse .vn{min-width:1.6em;font-size:.7em;padding-top:.3em}
+  .verse .vt{font-size:1em;line-height:1.75;overflow-wrap:anywhere;word-break:break-word}
+
+  .navbtns{gap:8px;margin:12px 0 8px}
+  .navbtn{
+    flex:1 1 0;
+    min-width:0;
+    padding:10px 8px;
+    font-size:13px;
+    border-radius:12px;
+  }
+
+  /* bottom tab bar — soft & always fitted */
+  .tabbar{
+    padding-top:4px;
+    padding-bottom:calc(4px + env(safe-area-inset-bottom, 0px));
+    box-shadow:0 -2px 16px rgba(0,0,0,.06);
+  }
+  .tabbar button{
+    padding:6px 2px 5px;
+    font-size:10px;
+    gap:2px;
+    min-width:0;
+  }
+  .tabbar button .ic{font-size:17px;line-height:1}
+
+  /* selection bar above tab — soft grid */
+  .selbar{
+    left:8px;right:8px;
+    bottom:calc(52px + env(safe-area-inset-bottom, 0px));
+    width:auto;
+    border-radius:16px 16px 14px 14px;
+    border:1px solid var(--line);
+    box-shadow:0 -4px 20px rgba(0,0,0,.12);
+    padding:8px 10px;
+    gap:6px;
+  }
+  .selbar .cnt{font-size:12px}
+  .selbar .row{gap:5px}
+  .selbar .row .btn{
+    min-height:38px;
+    padding:7px 4px;
+    font-size:12px;
+    border-radius:10px;
+  }
+  body.selecting-mode .wrap{
+    padding-bottom:calc(200px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* buttons general */
+  .btn{
+    padding:9px 12px;
+    font-size:13px;
+    border-radius:11px;
+    min-height:40px;
+    box-sizing:border-box;
+  }
+  .pactions{gap:6px}
+  .pactions .btn{min-height:40px;font-size:12.5px;padding:8px 6px;border-radius:11px}
+
+  /* sheets & modals soft */
+  .sheet .shead,
+  .rmodal-head{padding:12px 14px}
+  .rmodal-body{padding:12px 14px}
+  .rmodal-foot{
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    gap:6px;
+  }
+  .rmodal{border-radius:16px 16px 0 0}
+
+  /* book grid */
+  .bookgrid{gap:6px;padding:4px}
+  .bookcard{padding:10px 8px;border-radius:12px;font-size:13px}
+
+  /* search */
+  .searchbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    align-items:center;
+  }
+  .searchbar input{
+    flex:1 1 140px;
+    min-width:0;
+    font-size:15px;
+    padding:10px 12px;
+    border-radius:12px;
+  }
+
+  /* notes / favorites cards */
+  .noteitem{padding:11px 12px;border-radius:12px;margin-bottom:8px}
+  .noteitem .ref{font-size:13px}
+
+  /* sermon library */
+  .sermon-bar{gap:6px}
+  .sermon-bar input{min-width:0;flex:1 1 120px}
+  .sermon-filters{gap:6px}
+  .dtable th,.dtable td{padding:8px 8px;font-size:12.5px}
+  .dtable .rowact{white-space:nowrap}
+
+  /* present / sermon view */
+  #sermonView .rmodal-head{padding:12px 14px}
+  #sermonView .rmodal-body{padding:18px 14px 48px}
+  #sermonView .svbody{font-size:1.05em;line-height:1.9}
+  #sermonView .rmodal-foot{
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    gap:5px;
+  }
+
+  /* word highlight floating bar — full controls visible */
+  .whlbar{
+    max-width:calc(100vw - 16px);
+    border-radius:14px;
+    padding:6px 7px;
+    gap:5px;
+    z-index:200;
+  }
+  .whlbar .hlsw{width:30px;height:30px;flex-shrink:0}
+  .whlbar #whlCmBtn{flex-shrink:0}
+
+
+  /* toast soft */
+  .toast{
+    left:50%;
+    width:max-content;
+    max-width:calc(100vw - 28px);
+    padding:10px 14px;
+    font-size:13px;
+    border-radius:12px;
+  }
+
+  /* reduce harsh shadows on mobile */
+  .panel,.popover,.rmodal,.inlineNote,.noteitem{
+    box-shadow:0 4px 18px rgba(0,0,0,.1);
+  }
+}
+
+@media (max-width:380px){
+  .wrap{padding:8px 10px calc(84px + env(safe-area-inset-bottom, 0px))}
+  .rb{padding:6px 10px;font-size:12px;min-height:34px}
+  .chapter-head h1{font-size:20px}
+  .tabbar button{font-size:9.5px}
+  .tabbar button .ic{font-size:16px}
+  .selbar{left:6px;right:6px;padding:7px 8px}
+  .selbar .row .btn{min-height:36px;font-size:11.5px;padding:6px 2px}
+  .btn{font-size:12.5px;padding:8px 10px;min-height:38px}
+  #sermonView .rmodal-foot > .btn,
+  #sermonView .svtools .btn{font-size:11px;min-height:36px;padding:6px 2px}
+}
+/* === end soft mobile fit === */
+
 </style>
 </head>
 <body>
@@ -759,7 +1167,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
 <div class="selbar" id="srchBar">
  <div class="cnt" id="srchCount">0 selected</div>
  <div class="row" style="justify-content:center;width:100%">
-  <button class="btn" id="srFav">★ Favorite</button>
+  <button class="btn ghost" id="srFav">★ Favorite</button>
   <button class="btn ghost" id="srLabel">🏷 Label</button>
   <button class="btn ghost" id="srCopy">⧉ Copy</button>
   <button class="btn ghost" id="srClear">Clear</button>
@@ -857,7 +1265,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   </div>
   <div class="setgroup">
   <h3>Backup / Restore</h3>
-   <p class="help" style="font-family:var(--sans);font-size:14.5px;line-height:1.8;margin:0 0 10px">Your notes, bookmarks and settings — all in one JSON file. When you press <b>Backup</b> you choose where to save it.</p>
+   <p class="help" style="font-family:var(--sans);font-size:14.5px;line-height:1.8;margin:0 0 10px">All your Bible changes — commentary, notes, favorites, labels, highlights, word comments, verse edits and settings — in one JSON file. Sermons are backed up separately from the Sermon Library. When you press <b>Backup</b> you choose where to save it.</p>
    <div class="row">
     <button class="btn" id="backupBtn2">🗄 Backup (choose location)</button>
     <button class="btn ghost" id="restoreBtn2">♻ Restore (choose file)</button>
@@ -892,7 +1300,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   <h3>Backup reminder</h3>
   <p>If you have notes and have not backed up for a while, a reminder appears at the top of the <b>Notes</b> tab. Tap <b>Backup now</b> to save a restorable copy.</p>
   <h3>Backup / Restore</h3>
-  <p><b>Backup</b> saves your notes, bookmarks, sermons and settings into one JSON file (you choose where). <b>Restore</b> loads it back. Backups are manual — the app keeps no automatic copy.</p>
+  <p><b>Backup</b> saves all your Bible changes — commentary, notes, favorites, labels, highlights, word comments, verse edits and settings — into one JSON file. Sermons are backed up separately from the Sermon Library. <b>Restore</b> loads the Bible backup back. Backups are manual — the app keeps no automatic copy.</p>
   <h3>Sync between devices (phone ⇄ PC)</h3>
   <p>The app keeps everything on the device itself and never sends your data anywhere. To move it, use files: on one device tap <b>Backup</b> (or <b>Save a backup file</b>) and save the JSON into a cloud folder you already use — Google Drive, OneDrive, Dropbox. On the other device, open the app and <b>Restore</b> that file. Do this each time you switch, keeping the newest file as your master. Once you have used a backup file, <b>↻ Re-open last backup</b> reads that same file again in one tap — handy when it lives in a synced folder and changes on the other device.</p>
   <h3>Sermons on other devices</h3>
@@ -953,13 +1361,17 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
  <div class="cnt" id="selCount">0 selected</div>
  <div class="hlrow"><span class="hllbl">Highlight</span><span id="hlColors"></span></div>
  <div class="row" style="justify-content:center;width:100%">
-  <button class="btn" id="selFav">★ Favorite</button>
+  <button class="btn ghost" id="selFav">★ Favorite</button>
   <button class="btn ghost" id="selCopy">⧉ Copy</button>
   <button class="btn ghost" id="selCancel">Cancel</button>
  </div>
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="svback" id="svBackBar" hidden>
+  <button type="button" class="svback-btn" id="svBackBtn">← Back to sermon</button>
+  <button type="button" class="svback-x" id="svBackDismiss" aria-label="Dismiss">✕</button>
+</div>
 
 
 <!-- ============ MERGED APP: rich commentary editor ============ -->
@@ -1027,7 +1439,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
     </div>
     <div class="setgroup">
       <h3>Backup &amp; sync</h3>
-      <p class="help" style="font-family:var(--sans);font-size:14px;line-height:1.7;margin:0 0 8px">Saves <b>everything</b> — commentary, favorites, labels, highlights, word notes, sermons and settings — into one file you can keep, move to another device, or drop in a cloud folder to sync phone and PC. <b>Restore</b> reads it back. There is no automatic copy — you are always in control of the file.</p>
+      <p class="help" style="font-family:var(--sans);font-size:14px;line-height:1.7;margin:0 0 8px">Saves all your <b>Bible changes</b> — commentary, notes, favorites, labels, highlights, word comments, verse edits and settings — into one file. Sermons are <b>not</b> included (use the Sermon Library backup for those). <b>Restore</b> reads it back. There is no automatic copy — you are always in control of the file.</p>
       <div class="row" style="margin-top:12px">
         <button class="btn" id="downloadBackupBtn">⬇ Save a backup file</button>
         <button class="btn ghost" id="restoreAutoBtn">♻ Restore from a file</button>
@@ -1158,6 +1570,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
       <button class="btn ghost" id="sermonExport">⤓ Export</button>
       <button class="btn ghost" id="sermonDel">🗑 Delete</button>
       <button class="btn ghost" id="sermonPin">📌 Pin above verse</button>
+      <button class="btn" id="sermonPresent" title="Open present view for preaching">🎙 Present</button>
       <button class="btn ghost" id="sermonCancel">Close</button>
     </div>
   </div>
@@ -1175,6 +1588,12 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
       <div class="svbody" id="svBody"></div>
     </div>
     <div class="rmodal-foot">
+      <div class="svtools">
+        <button class="btn ghost" id="svScripture" title="Open Bible passage">📖 Scripture</button>
+        <button class="btn ghost svfs" id="svFontMinus" title="Smaller text">A−</button>
+        <button class="btn ghost svfs" id="svFontPlus" title="Larger text">A+</button>
+        <button class="btn ghost" id="svPresent" title="Hide chrome for preaching">🎙 Present</button>
+      </div>
       <button class="btn ghost" id="svClose2">Close</button>
       <button class="btn" id="svEdit">✎ Edit</button>
     </div>
@@ -1314,7 +1733,7 @@ function buildNav(){
 }
 function openChapter(bi,ch,flashV){ try{ if(typeof hideCommentaryView==='function') hideCommentaryView(); }catch(e){}
   if(typeof stopSpeak==='function')stopSpeak();
-  selecting=false;selected={};if($('selBar'))$('selBar').classList.remove('show');if($('rbSelect'))$('rbSelect').classList.remove('on');
+  selecting=false;selected={};if($('selBar'))$('selBar').classList.remove('show');if($('rbSelect'))$('rbSelect').classList.remove('on');try{document.body.classList.remove('selecting-mode');}catch(e){}
   S.bi=bi;S.ch=ch;S.view='read';showView('read');
   var b=BOOKS[bi];
   $('chBook').textContent='My Bible';
@@ -1700,11 +2119,22 @@ function openWhlComment(){
   if(!whlTarget)return;
   $('whlBar').classList.remove('show');
   var bar=$('whlCmBar');$('whlCmInput').value='';
+  bar.style.visibility='hidden';
   bar.classList.add('show');
-  var r=whlSelRect||null,h=bar.offsetHeight;
-  var top=(r?r.top:200)-h-8; if(top<150)top=(r?r.bottom+8:300);
+  var r=whlSelRect||null;
+  var bw=bar.offsetWidth||Math.min(window.innerWidth-16,340);
+  var h=bar.offsetHeight||120;
+  var cx=r?(r.left+r.width/2):(window.innerWidth/2);
+  var left=Math.round(cx-bw/2);
+  left=Math.max(8,Math.min(window.innerWidth-bw-8,left));
+  var top=r?Math.round(r.top-h-10):120;
+  if(top<70)top=r?Math.round(r.bottom+10):120;
+  var maxTop=window.innerHeight-h-64;
+  if(top>maxTop)top=Math.max(70,maxTop);
   bar.style.top=top+'px';
-  bar.style.left=Math.max(8,Math.min(window.innerWidth-bar.offsetWidth-8,(r?r.left:20)))+'px';
+  bar.style.left=left+'px';
+  bar.style.right='auto';
+  bar.style.visibility='visible';
   setTimeout(function(){$('whlCmInput').focus();},60);
 }
 function saveWhlComment(){
@@ -1781,10 +2211,24 @@ function showWhlBar(){
   if(!info){bar.classList.remove('show');return;}
   whlTarget={bi:S.bi,ch:S.ch,v:info.v,text:info.text};
   whlSelRect=info.rect;
-  var top=info.rect.top-48;if(top<70)top=info.rect.bottom+10;
-  var left=info.rect.left+info.rect.width/2-100;
-  bar.style.top=top+'px';bar.style.left=Math.max(8,Math.min(window.innerWidth-216,left))+'px';
+  /* measure real width so the bar (including 💬) stays centered and fully on-screen */
+  bar.style.visibility='hidden';
+  bar.style.left='0px';
+  bar.style.top='0px';
   bar.classList.add('show');
+  var bw = bar.offsetWidth || 220;
+  var bh = bar.offsetHeight || 44;
+  var cx = info.rect.left + info.rect.width / 2;
+  var left = Math.round(cx - bw / 2);
+  left = Math.max(8, Math.min(window.innerWidth - bw - 8, left));
+  var top = Math.round(info.rect.top - bh - 10);
+  if (top < 56) top = Math.round(info.rect.bottom + 10);
+  var maxTop = window.innerHeight - bh - 64;
+  if (top > maxTop) top = Math.max(56, maxTop);
+  bar.style.top = top + 'px';
+  bar.style.left = left + 'px';
+  bar.style.right = 'auto';
+  bar.style.visibility = 'visible';
 }
 function applyWordHl(color){
   if(!whlTarget)return;
@@ -1828,8 +2272,14 @@ function toggleSrSel(btn,bi,ch,v){
 function updateSrchBar(){
   var bar=$('srchBar');if(!bar)return;
   var n=Object.keys(srSel).length;
-  bar.classList.toggle('show',n>0&&S.view==='search');
-  $('srchCount').textContent=n+(n===1?' verse selected':' verses selected');
+  var on=n>0&&S.view==='search';
+  bar.classList.toggle('show',on);
+  if($('srchCount'))$('srchCount').textContent=n+(n===1?' verse selected':' verses selected');
+  try{
+    var verseSel = !!(typeof selecting!=='undefined' && selecting && $('selBar') && $('selBar').classList.contains('show'));
+    if(on || verseSel) document.body.classList.add('selecting-mode');
+    else if(!selecting) document.body.classList.remove('selecting-mode');
+  }catch(e){}
 }
 function clearSrSel(){srSel={};var b=document.querySelectorAll('#results .rcb');for(var i=0;i<b.length;i++){b[i].classList.remove('on');b[i].textContent='☐';}updateSrchBar();}
 function srList(){return Object.keys(srSel);}
@@ -1837,7 +2287,7 @@ $('srClear').onclick=clearSrSel;
 $('srFav').onclick=function(){var ks=srList();if(!ks.length)return;ks.forEach(function(k){marks[k]=true;});save(LS.marks,marks);renderMarks();toast(ks.length+' added to favorites');clearSrSel();};
 $('srCopy').onclick=function(){var ks=srList();if(!ks.length)return;
   var s=ks.map(function(k){var p=k.split('|').map(Number);return refLabel(p[0],p[1],p[2])+'\n'+verseText(p[0],p[1],p[2]);}).join('\n\n');
-  if(navigator.clipboard)navigator.clipboard.writeText(s).then(function(){toast('Copied');});else toast('Could not copy');};
+  copyTextToClipboard(s, 'Copied');};
 $('srLabel').onclick=function(){var ks=srList();if(!ks.length)return;openLabelSheet(ks);};
 var labelTargets=null;
 function openLabelSheet(keys){
@@ -1889,12 +2339,17 @@ function buildHlSwatches(){
 function startSelect(){
   selecting=true;selected={};
   var vs=document.querySelectorAll('#verses .verse');for(var i=0;i<vs.length;i++)vs[i].classList.remove('selected');
-  $('selBar').classList.add('show');$('rbSelect').classList.add('on');updateSelBar();
+  if($('selBar'))$('selBar').classList.add('show');
+  if($('rbSelect'))$('rbSelect').classList.add('on');
+  updateSelBar();
+  try{ document.body.classList.add('selecting-mode'); }catch(e){}
 }
 function cancelSelect(){
   selecting=false;selected={};
   var vs=document.querySelectorAll('#verses .verse');for(var i=0;i<vs.length;i++)vs[i].classList.remove('selected');
-  $('selBar').classList.remove('show');$('rbSelect').classList.remove('on');
+  try{ if($('selBar'))$('selBar').classList.remove('show'); }catch(e){}
+  try{ if($('rbSelect'))$('rbSelect').classList.remove('on'); }catch(e){}
+  try{ document.body.classList.remove('selecting-mode'); }catch(e){}
 }
 function toggleSelect(v){
   if(selected[v])delete selected[v];else selected[v]=true;
@@ -1916,13 +2371,38 @@ function addFavorites(){
   save(LS.marks,marks);renderMarks();
   toast(ks.length+' added to favorites');cancelSelect();
 }
+function copyTextToClipboard(s, okMsg){
+  okMsg = okMsg || 'Copied';
+  if (!s){ toast('Nothing to copy'); return; }
+  function fallback(){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = s;
+      ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try{ ta.setSelectionRange(0, s.length); }catch(e1){}
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      toast(ok ? okMsg : 'Could not copy');
+    }catch(e){ toast('Could not copy'); }
+  }
+  try{
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(s).then(function(){ toast(okMsg); }).catch(function(){ fallback(); });
+    } else fallback();
+  }catch(e){ fallback(); }
+}
 function copySelected(){
   var ks=selKeys();if(!ks.length){toast('Select verses first');return;}
   var s=ks.map(function(v){return refLabel(S.bi,S.ch,v)+'\n'+verseText(S.bi,S.ch,v);}).join('\n\n');
-  if(navigator.clipboard)navigator.clipboard.writeText(s).then(function(){toast('Copied');});else toast('Could not copy');
+  copyTextToClipboard(s, 'Copied');
 }
-$('rbSelect').onclick=function(){if(selecting)cancelSelect();else startSelect();};
-$('selFav').onclick=addFavorites;$('selCopy').onclick=copySelected;$('selCancel').onclick=cancelSelect;
+if($('rbSelect'))$('rbSelect').onclick=function(){if(selecting)cancelSelect();else startSelect();};
+if($('selFav'))$('selFav').onclick=addFavorites;
+if($('selCopy'))$('selCopy').onclick=copySelected;
+if($('selCancel'))$('selCancel').onclick=cancelSelect;
 /* ---------- marks & notes ---------- */
 function renderMarks(){
   var list=$('marksList');list.innerHTML='';
@@ -2215,6 +2695,15 @@ function downloadBlob(blob,name){var a=document.createElement('a');a.href=URL.cr
   setTimeout(function(){try{f.contentWindow.focus();f.contentWindow.print();}catch(e){}setTimeout(function(){f.remove();},120000);},600);};})();
 
 /* ---------- boot ---------- */
+/* Ensure selection UI never sticks from a previous session */
+try{
+  selecting=false; selected={};
+  document.body.classList.remove('selecting-mode');
+  var _sb=$('selBar'); if(_sb) _sb.classList.remove('show');
+  var _sr=$('srchBar'); if(_sr) _sr.classList.remove('show');
+  var _rs=$('rbSelect'); if(_rs) _rs.classList.remove('on');
+}catch(e){}
+
 buildBookGrids();
 buildRefRegex();
 buildHlSwatches();
@@ -2231,8 +2720,8 @@ renderBkStatus();
 maybeRemindBackup();
 var start=parseHash();
 if(!start){var last=(settings.last||'0|0').split('|').map(Number);var _bi=last[0]||0,_ch=last[1]||0,_lv=(settings.lastV!=null?settings.lastV:null);if(_bi<0||_bi>=BOOKS.length){_bi=0;_ch=0;_lv=null;}if(_ch<0||_ch>=BOOKS[_bi].c.length){_ch=0;_lv=null;}if(_lv!=null&&(_lv<0||_lv>=BOOKS[_bi].c[_ch].length))_lv=null;start={bi:_bi,ch:_ch,v:_lv};}
+/* Restore last chapter (scroll to last verse if known) — do not auto-open commentary panel on launch */
 openChapter(start.bi,start.ch,start.v);
-if(start.v!=null)openPanel(start.bi,start.ch,start.v);
 
 /* ==================================================================
    NAVEEN BIBLE COMMENTARY — merged feature layer
@@ -2591,9 +3080,10 @@ function renderStats(){
 
 /* ---------------- automatic backup + remembered folder ---------------- */
 function snapshotPayload(){
+  /* Bible annotations only — sermons have their own backup in the Sermon Library */
   return {app: 'naveen-bible-commentary', version: 2, savedAt: new Date().toISOString(),
     notes: notes, marks: marks, labels: labels, highlights: highlights,
-    whl: whl, wh: wh, wn: wn, vedits: vedits, sermons: sermons, settings: settings, recent: recent};
+    whl: whl, wh: wh, wn: wn, vedits: vedits, settings: settings, recent: recent};
 }
 function backupPayload(){ var p = snapshotPayload(); p.version = 2; return p; }
 function applyBackupFull(obj, opts){
@@ -2603,9 +3093,7 @@ function applyBackupFull(obj, opts){
   var replace = (opts.mode === 'replace');
   var sets = {notes:notes, marks:marks, labels:labels, highlights:highlights, whl:whl, wh:wh, wn:wn, vedits:vedits};
   if (replace){
-    // Make this device match the backup exactly: clear categories the backup does not carry.
     Object.keys(sets).forEach(function(c){ if (!obj[c]) Object.keys(sets[c]).forEach(function(k){ delete sets[c][k]; }); });
-    if (!Array.isArray(obj.sermons)) sermons.length = 0;
   }
   function merge(dst, src, cat){
     if (!src || typeof src !== 'object') return;
@@ -2621,6 +3109,7 @@ function applyBackupFull(obj, opts){
   merge(wn, obj.wn, 'words');
   merge(vedits, obj.vedits, 'vedits');
   if (Array.isArray(obj.sermons)){
+    if (replace) sermons.length = 0;
     obj.sermons.forEach(function(s){
       if (!s || !s.id) return;
       var i = -1; for (var j=0;j<sermons.length;j++){ if (sermons[j] && sermons[j].id === s.id){ i = j; break; } }
@@ -3190,12 +3679,21 @@ function insertToggle(ed){
     var box = ed.querySelector('.ntoggle[data-new="1"]');
     if (box){
       box.removeAttribute('data-new');
-      if (box.classList.contains('collapsed')) box.classList.remove('collapsed');
+      box.classList.remove('collapsed');
+      /* ensure a paragraph after the box so the caret can leave the toggle later */
+      var next = box.nextSibling;
+      if (!next || (next.nodeType === 1 && next.classList && next.classList.contains('ntoggle'))){
+        var trail = document.createElement('p');
+        trail.innerHTML = '<br>';
+        box.parentNode.insertBefore(trail, box.nextSibling);
+      }
       var p = box.querySelector('.ntog-body p') || box.querySelector('.ntog-body');
       if (p){
+        if (!p.childNodes.length) p.innerHTML = '<br>';
         var r = document.createRange(); r.selectNodeContents(p); r.collapse(true);
         var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
       }
+      try{ ed.focus(); }catch(e0){}
     }
   }catch(e){}
   try{ seHistPush(ed); }catch(e){}
@@ -3311,9 +3809,167 @@ function openSermon(id){
 function closeSermon(){ $('sermonModal').classList.remove('open'); sermonCur = null; }
 /* ---- reader / present view (read-only, opened from a pinned sermon) ---- */
 var sermonViewId = null;
-function openSermonView(id){
+var svFontSize = 1.1;
+var svWakeLock = null;
+var svReturnId = null;
+var svReturnFocus = true;
+var svReturnScroll = 0; /* scroll position in present body when leaving for Scripture */
+var svReturnRatio = 0; /* 0–1 of scrollable height, survives layout changes */
+var svReturnAnchor = ''; /* text of the nearest heading/toggle at the focus point */
+function svScroller(){ return document.querySelector('#sermonView .rmodal-body'); }
+function svGetScroll(){
+  try{ var sc = svScroller(); return sc ? sc.scrollTop : 0; }catch(e){ return 0; }
+}
+function svSetScroll(y){
+  try{
+    var sc = svScroller(); if (!sc) return;
+    sc.scrollTop = y || 0;
+  }catch(e){}
+}
+function svCaptureFocusPoint(){
+  var sc = svScroller();
+  var y = 0, ratio = 0, anchor = '';
+  try{
+    if (sc){
+      y = sc.scrollTop || 0;
+      var max = Math.max(1, sc.scrollHeight - sc.clientHeight);
+      ratio = y / max;
+      /* find the last heading / toggle title that sits at or above the top of the viewport */
+      var body = $('svBody');
+      if (body){
+        var nodes = body.querySelectorAll('h1,h2,h3,h4,.ntog-title,p,li');
+        var scRect = sc.getBoundingClientRect();
+        var best = null, bestTop = -Infinity;
+        for (var i = 0; i < nodes.length; i++){
+          var r = nodes[i].getBoundingClientRect();
+          var top = r.top - scRect.top;
+          if (top <= 48 && top >= bestTop){ bestTop = top; best = nodes[i]; }
+        }
+        if (best){
+          anchor = (best.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+        }
+      }
+    }
+  }catch(e){}
+  return { y: y, ratio: ratio, anchor: anchor };
+}
+function svRestoreFocusPoint(saved){
+  if (!saved) return;
+  var sc = svScroller(); if (!sc) return;
+  var body = $('svBody');
+  /* 1) try to find the same heading/paragraph by text and scroll it into view */
+  if (saved.anchor && body){
+    try{
+      var nodes = body.querySelectorAll('h1,h2,h3,h4,.ntog-title,p,li');
+      for (var i = 0; i < nodes.length; i++){
+        var t = (nodes[i].textContent || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+        if (t && t === saved.anchor){
+          nodes[i].scrollIntoView({ block: 'start' });
+          /* nudge so the line sits a bit below the top */
+          sc.scrollTop = Math.max(0, sc.scrollTop - 8);
+          return;
+        }
+      }
+    }catch(e){}
+  }
+  /* 2) fall back to ratio, then absolute y */
+  try{
+    var max = Math.max(0, sc.scrollHeight - sc.clientHeight);
+    if (saved.ratio > 0 && max > 0) sc.scrollTop = Math.round(saved.ratio * max);
+    else if (saved.y > 0) sc.scrollTop = saved.y;
+  }catch(e){}
+}
+function svApplyFont(){
+  try{ var el = $('sermonView'); if (el) el.style.setProperty('--sv-fs', svFontSize + 'em'); }catch(e){}
+}
+function svFontStep(dir){
+  svFontSize = Math.max(0.85, Math.min(2.2, Math.round((svFontSize + dir * 0.1) * 10) / 10));
+  svApplyFont();
+  try{ toast((Math.round(svFontSize * 100)) + '% text'); }catch(e){}
+}
+function svRequestWake(){
+  try{
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function(lock){
+      svWakeLock = lock;
+      try{ lock.addEventListener('release', function(){ if (svWakeLock === lock) svWakeLock = null; }); }catch(e){}
+    }).catch(function(){});
+  }catch(e){}
+}
+function svReleaseWake(){
+  try{ if (svWakeLock){ svWakeLock.release(); svWakeLock = null; } }catch(e){}
+}
+var svReturnPoint = null; /* {y, ratio, anchor} */
+function showSvBackBar(id, focus, point){
+  svReturnId = id || null;
+  svReturnFocus = focus !== false;
+  if (point && typeof point === 'object'){
+    svReturnPoint = point;
+    svReturnScroll = point.y || 0;
+    svReturnRatio = point.ratio || 0;
+    svReturnAnchor = point.anchor || '';
+  } else if (typeof point === 'number'){
+    svReturnPoint = { y: point, ratio: 0, anchor: '' };
+    svReturnScroll = point;
+    svReturnRatio = 0;
+    svReturnAnchor = '';
+  } else {
+    svReturnPoint = null;
+    svReturnScroll = 0;
+    svReturnRatio = 0;
+    svReturnAnchor = '';
+  }
+  var bar = $('svBackBar'); if (!bar) return;
+  if (!svReturnId){ bar.hidden = true; return; }
+  bar.hidden = false;
+  try{
+    var s = sermons.filter(function(x){ return x.id === svReturnId; })[0];
+    var label = s ? (s.title || s.series || 'sermon') : 'sermon';
+    var btn = $('svBackBtn');
+    if (btn) btn.textContent = '← Back to ' + (label.length > 28 ? label.slice(0, 26) + '…' : label);
+  }catch(e){}
+}
+function hideSvBackBar(){
+  svReturnId = null;
+  svReturnScroll = 0;
+  svReturnRatio = 0;
+  svReturnAnchor = '';
+  svReturnPoint = null;
+  var bar = $('svBackBar'); if (bar) bar.hidden = true;
+}
+function returnToSermon(){
+  var id = svReturnId, focus = svReturnFocus, point = svReturnPoint;
+  hideSvBackBar();
+  if (!id) return;
+  var sv = $('sermonView');
+  /* If the same sermon is still held in the DOM, just reveal it — scroll is exact */
+  if (sv && sv.classList.contains('svheld') && sermonViewId === id){
+    sv.classList.remove('svheld');
+    if (focus){ sv.classList.add('svfocus'); sv.classList.add('svpresenting'); }
+    else { sv.classList.remove('svfocus'); sv.classList.remove('svpresenting'); }
+    if (!sv.classList.contains('open')) sv.classList.add('open');
+    /* scroll was never destroyed — still re-assert saved point for safety */
+    try{
+      var pb = $('svPresent');
+      if (pb) pb.textContent = focus ? '👁 Show bars' : '🎙 Present';
+    }catch(e){}
+    /* force the saved point in case anything shifted while hidden */
+    if (point){
+      setTimeout(function(){ try{ svRestoreFocusPoint(point); }catch(e){} }, 20);
+      setTimeout(function(){ try{ svRestoreFocusPoint(point); }catch(e){} }, 100);
+    }
+    try{ svRequestWake(); }catch(e){}
+    return;
+  }
+  /* Fallback: full reopen with remembered point */
+  openSermonView(id, {focus: focus, scroll: point});
+}
+function openSermonView(id, opts){
+  opts = opts || {};
   var s = sermons.filter(function(x){ return x.id === id; })[0];
   if (!s) return;
+  try{ hideSvBackBar(); }catch(e){}
+  try{ var _sv = $('sermonView'); if (_sv) _sv.classList.remove('svheld'); }catch(e){}
   sermonViewId = s.id;
   $('svTitle').textContent = s.title || s.series || 'Sermon';
   if ($('svEyebrow')) $('svEyebrow').textContent = s.series || '';
@@ -3326,12 +3982,96 @@ function openSermonView(id){
   var b = s.body || '';
   $('svBody').innerHTML = b ? (String(b).indexOf('<') >= 0 ? _sanRich(b).innerHTML : esc(b).replace(/\n/g, '<br>')) : '<div class="svempty">No notes yet — tap Edit to add some.</div>';
   var svEl = $('sermonView');
-  svEl.classList.remove('svfocus');
+  svEl.classList.toggle('svfocus', !!opts.focus);
+  svEl.classList.toggle('svpresenting', !!opts.focus);
+  svApplyFont();
   svEl.classList.add('open');
-  try{ var sc = document.querySelector('#sermonView .rmodal-body'); if (sc) sc.scrollTop = 0; }catch(e){}
+  var point = null;
+  if (opts.scroll && typeof opts.scroll === 'object') point = opts.scroll;
+  else if (typeof opts.scroll === 'number') point = { y: opts.scroll, ratio: 0, anchor: '' };
+  try{
+    var sc = svScroller();
+    if (sc) sc.scrollTop = (point && point.y) ? point.y : 0;
+  }catch(e){}
+  /* re-apply after layout: match heading text first, then ratio/y */
+  if (point && (point.y > 0 || point.ratio > 0 || point.anchor)){
+    setTimeout(function(){ svRestoreFocusPoint(point); }, 30);
+    setTimeout(function(){ svRestoreFocusPoint(point); }, 150);
+  }
+  svRequestWake();
+  try{
+    var scBtn = $('svScripture');
+    if (scBtn){
+      var vv = sermonVerse(s);
+      scBtn.style.display = vv ? '' : 'none';
+      scBtn.disabled = !vv;
+    }
+  }catch(e){}
+  try{
+    var pb = $('svPresent');
+    if (pb) pb.textContent = opts.focus ? '👁 Show bars' : '🎙 Present';
+  }catch(e){}
 }
-function closeSermonView(){ var v = $('sermonView'); if (v) v.classList.remove('open'); sermonViewId = null; }
+function closeSermonView(){
+  var v = $('sermonView');
+  if (v){
+    v.classList.remove('open');
+    v.classList.remove('svfocus');
+    v.classList.remove('svpresenting');
+    v.classList.remove('svheld');
+  }
+  sermonViewId = null;
+  svReleaseWake();
+  try{ hideSvBackBar(); }catch(e){}
+}
 function editSermonView(){ var id = sermonViewId; closeSermonView(); if (id) openSermon(id); }
+function jumpSermonScripture(){
+  if (!sermonViewId) return;
+  var s = sermons.filter(function(x){ return x.id === sermonViewId; })[0];
+  if (!s) return;
+  var v = sermonVerse(s);
+  if (!v){ toast('Set Book and Reference first'); return; }
+  var id = sermonViewId;
+  var wasFocus = false;
+  var point = null;
+  try{ point = svCaptureFocusPoint(); }catch(e){ point = { y: 0, ratio: 0, anchor: '' }; }
+  try{ var el = $('sermonView'); wasFocus = !!(el && el.classList.contains('svfocus')); }catch(e){}
+  /* HOLD the present view in the DOM (keep scroll + content). Stay .open so the
+     browser does not discard scrollTop; only fade it out of the way. */
+  try{
+    var sv = $('sermonView');
+    if (sv){
+      sv.classList.add('svheld');
+      /* keep .open — display:flex must stay so scroll position is preserved */
+      if (!sv.classList.contains('open')) sv.classList.add('open');
+    }
+  }catch(e){}
+  /* do NOT clear sermonViewId or release wake yet — we are coming back */
+  try{ jumpVerse(v.bi, v.ch, v.v, false); }catch(e){}
+  showSvBackBar(id, wasFocus, point);
+  toast((bookName(s.book) || '') + (s.reference ? (' ' + s.reference) : '') + ' — tap ← Back to return');
+}
+function toggleSermonPresent(){
+  var v = $('sermonView'); if (!v || !v.classList.contains('open')) return;
+  var on = !v.classList.contains('svfocus');
+  v.classList.toggle('svfocus', on);
+  v.classList.toggle('svpresenting', on);
+  var pb = $('svPresent');
+  if (pb) pb.textContent = on ? '👁 Show bars' : '🎙 Present';
+  if (on) svRequestWake();
+}
+function presentSermonFromEditor(){
+  try{ flushSermonSave(); }catch(e){}
+  var s = collectSermon() || sermonCur;
+  if (!s || !s.id){ toast('Save the sermon first'); return; }
+  var idx = sermons.map(function(x){ return x.id; }).indexOf(s.id);
+  if (idx < 0){
+    if (!s.title && !s.series && !richToText(s.body)){ toast('Add a title or some notes first'); return; }
+    sermons.push(s); saveSermons();
+  }
+  try{ closeSermon(); }catch(e){}
+  openSermonView(s.id, {focus: true});
+}
 function collectSermon(){
   if (!sermonCur) return null;
   sermonCur.series = $('sSeries').value.trim();
@@ -3573,9 +4313,10 @@ function renderSermons(){
     tr.innerHTML = '<td class="ser">' + esc(s.series || '—') + '</td>' +
       '<td class="ti">' + esc(s.title || '—') + '</td>' +
       '<td class="cat">' + (s.category ? '<span class="catpill">' + esc(s.category) + '</span>' : '—') + '</td>' +
-      '<td class="rowact"><button class="rowdel" title="Delete">🗑</button></td>';
-    tr.onclick = function(e){ if (e.target && e.target.closest && e.target.closest('.rowdel')) return; openSermon(s.id); };
+      '<td class="rowact"><button class="rowpresent" title="Present">🎙</button><button class="rowdel" title="Delete">🗑</button></td>';
+    tr.onclick = function(e){ if (e.target && e.target.closest && e.target.closest('.rowdel,.rowpresent')) return; openSermon(s.id); };
     tr.querySelector('.rowdel').onclick = function(e){ e.stopPropagation(); if (window.confirm('Delete "' + (s.title || s.series || 'sermon') + '"?')){ sermons = sermons.filter(function(x){ return x.id !== s.id; }); saveSermons(); renderSermons(); refreshSermonLinks(); toast('Deleted'); } };
+    tr.querySelector('.rowpresent').onclick = function(e){ e.stopPropagation(); openSermonView(s.id, {focus: true}); };
     tb.appendChild(tr);
   }
   if (grouped){
@@ -3630,6 +4371,19 @@ function renderSermons(){
   if ($('svClose')) $('svClose').onclick = closeSermonView;
   if ($('svClose2')) $('svClose2').onclick = closeSermonView;
   if ($('svEdit')) $('svEdit').onclick = editSermonView;
+  if ($('svScripture')) $('svScripture').onclick = jumpSermonScripture;
+  if ($('svFontMinus')) $('svFontMinus').onclick = function(){ svFontStep(-1); };
+  if ($('svFontPlus')) $('svFontPlus').onclick = function(){ svFontStep(1); };
+  if ($('svPresent')) $('svPresent').onclick = toggleSermonPresent;
+  if ($('sermonPresent')) $('sermonPresent').onclick = presentSermonFromEditor;
+  if ($('svBackBtn')) $('svBackBtn').onclick = returnToSermon;
+  if ($('svBackDismiss')) $('svBackDismiss').onclick = hideSvBackBar;
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible'){
+      var v = $('sermonView');
+      if (v && v.classList.contains('open')) svRequestWake();
+    }
+  });
   var svv = $('sermonView'); if (svv) svv.addEventListener('click', function(e){ if (e.target === this) closeSermonView(); });
   var svb = $('svBody');
   if (svb) svb.addEventListener('click', function(e){
@@ -3662,23 +4416,61 @@ function renderSermons(){
        caret so the title can be renamed — it never folds by accident. And if the
        caret is inside a box when it collapses, it is moved out to the heading so
        it can never get stuck in the hidden body. */
+    /* Fold arrow: collapse/expand and ALWAYS release the caret to a visible place
+       so it never stays trapped inside a hidden .ntog-body. */
+    se.addEventListener('mousedown', function(e){
+      var tri = e.target.closest && e.target.closest('.ntog-tri');
+      if (!tri) return;
+      e.preventDefault(); /* stop browser from parking the caret on the arrow */
+    }, true);
     se.addEventListener('click', function(e){
       var tri = e.target.closest && e.target.closest('.ntog-tri');
       if (!tri) return;
       var box = tri.closest('.ntoggle'); if (!box) return;
       e.preventDefault();
+      e.stopPropagation();
       var collapsing = !box.classList.contains('collapsed');
       box.classList.toggle('collapsed');
       try{
         var sel = window.getSelection();
-        var node = (sel && sel.rangeCount) ? sel.getRangeAt(0).startContainer : null;
-        var body = box.querySelector('.ntog-body');
-        if (collapsing && node && body && body.contains(node)){
-          var title = box.querySelector('.ntog-title') || box;
-          var r = document.createRange(); r.selectNodeContents(title); r.collapse(false);
-          sel.removeAllRanges(); sel.addRange(r);
+        if (!sel) return;
+        if (collapsing){
+          /* Caret must leave the hidden body — put it after this toggle box */
+          var after = box.nextSibling;
+          while (after && after.nodeType === 3 && !String(after.nodeValue || '').trim()) after = after.nextSibling;
+          if (!after || (after.nodeType === 1 && after.classList && after.classList.contains('ntoggle'))){
+            var p = document.createElement('p');
+            p.innerHTML = '<br>';
+            box.parentNode.insertBefore(p, box.nextSibling);
+            after = p;
+          }
+          var r = document.createRange();
+          if (after.nodeType === 3){
+            r.setStart(after, Math.min(after.nodeValue.length, 0));
+            r.collapse(true);
+          } else {
+            r.selectNodeContents(after);
+            r.collapse(true);
+          }
+          sel.removeAllRanges();
+          sel.addRange(r);
+          try{ se.focus(); }catch(err2){}
+        } else {
+          /* Expanding — put caret at the start of the body so typing continues there */
+          var body = box.querySelector('.ntog-body');
+          var target = body && (body.querySelector('p,div,li') || body);
+          if (target){
+            if (!target.childNodes.length) target.innerHTML = '<br>';
+            var r2 = document.createRange();
+            r2.selectNodeContents(target);
+            r2.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r2);
+            try{ se.focus(); }catch(err3){}
+          }
         }
       }catch(err){}
+      try{ scheduleSermonSave(); }catch(err4){}
     });
     /* keep Enter inside a toggle box: start a new line in the same box instead of
        letting the browser clone the box. (Also handles boxes with no inner block.) */
