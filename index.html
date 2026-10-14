@@ -413,6 +413,18 @@ html[data-theme="dark"] .cvbody a.vref,html[data-theme="night"] .cvbody a.vref,h
 .cvbody ul,.cvbody ol{margin:5px 0 5px 20px}.cvbody li{margin:2px 0}
 .cvbody blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:6px 0;color:var(--muted)}
 .cvmuted{color:var(--muted);font-style:italic}
+.cvactions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--line);background:var(--surface2)}
+.cvactions .btn{font-size:13.5px;padding:8px 12px}
+button.veditbtn{
+  flex:0 0 auto;align-self:flex-start;margin-top:1px;
+  width:30px;height:30px;border-radius:8px;border:none;
+  background:transparent;cursor:pointer;
+  font-size:15px;line-height:1;padding:0;
+  color:#c45c12;opacity:.85;
+}
+button.veditbtn:hover,button.veditbtn:active{opacity:1;background:rgba(196,92,18,.14);color:#e67e22}
+.verse.edited button.veditbtn{opacity:1;color:#e67e22;font-weight:700}
+
 
 /* dark themes: keep the header dark (accent is light in these themes) */
 html[data-theme="slate"] header{background:linear-gradient(180deg,#1d2735,#131a23);border-bottom:1px solid var(--line)}
@@ -1290,7 +1302,9 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   <h3>Verse links</h3>
   <p>Tap any verse and press <b>🔗 Link</b> to copy a link to that verse. In your commentary, write a reference like <code>John 3:16</code> and it becomes a clickable link automatically.</p>
   <h3>Commentary</h3>
-  <p>Tap a <b>verse number</b> to see the note as a preview. Tap the <b>verse text</b> to write or edit the note — a box opens right above the verse. Tap outside to close. Notes are stored on this device (offline).</p>
+  <p>Tap a <b>verse number</b> to open the commentary editor. Tap the <b>verse text</b> for commentary and actions. On every verse, tap the orange <b>✎</b> button to edit the verse text itself (typo / alternate reading). Notes and edits stay on this device (offline).</p>
+  <h3>Edit verse text</h3>
+  <p>Use the <b>✎</b> on each verse, or <b>✎ Edit verse</b> in the commentary box / panel / popover. <b>Save</b> applies the change everywhere; <b>↺ Restore original</b> undoes it. Edited verses show an orange ✎ badge.</p>
   <h3>Word highlights</h3>
   <p>Select a word and tap a colour to highlight it. Just like comments, a highlight then applies to <b>every</b> occurrence of that word in the Bible. The <b>⌀</b> button removes it everywhere.</p>
   <h3>Word comments</h3>
@@ -1321,6 +1335,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   <div class="vtext" id="popText"></div>
   <div class="actions">
    <button class="act" id="popMark">★ <span>Favorite</span></button>
+   <button class="act" id="popEditV">✎ <span>Edit verse</span></button>
    <button class="act" id="popCopy">⧉ <span>Copy</span></button>
    <button class="act" id="popLink">🔗 <span>Link</span></button>
    <button class="act" id="popShare">↗ <span>Share</span></button>
@@ -1411,6 +1426,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
       </div>
     </div>
     <div class="rmodal-foot">
+      <button class="btn ghost" id="richEditV">✎ Edit verse</button>
       <button class="btn ghost" id="richDel">🗑 Delete</button>
       <button class="btn ghost" id="richCancel">Cancel</button>
       <button class="btn" id="richSave">Save</button>
@@ -1745,13 +1761,14 @@ function openChapter(bi,ch,flashV){ try{ if(typeof hideCommentaryView==='functio
   b.c[ch].forEach(function(t,v){
     var d=document.createElement('div');d.className='verse';d.id='v'+v;
     var _bk=vkey(bi,ch,v),_bd='';if(notes[_bk])_bd+='<span class="vbadge vnote" title="Has commentary">💬</span>';if(marks[_bk])_bd+='<span class="vbadge vfav" title="Favorite">★</span>';if(vedits[_bk])_bd+='<span class="vbadge vedit" title="Edited">✎</span>';
-    d.innerHTML='<div class="vn" title="Commentary">'+(v+1)+'</div><div class="vt">'+renderVerse(verseText(bi,ch,v),bi,ch,v)+'</div><span class="vbadges">'+_bd+'</span><button class="spk" title="Play verse">🔊</button>';
+    d.innerHTML='<div class="vn" title="Commentary">'+(v+1)+'</div><div class="vt">'+renderVerse(verseText(bi,ch,v),bi,ch,v)+'</div><span class="vbadges">'+_bd+'</span><button type="button" class="veditbtn" title="Edit verse text">✎</button><button class="spk" title="Play verse">🔊</button>';
     if(vedits[_bk])d.classList.add('edited');
     var hl=highlights[vkey(bi,ch,v)];
     if(hl&&HLC[hl])d.style.background=HLC[hl];
     d.onclick=function(e){if(selecting){e.stopPropagation();toggleSelect(v);return;}e.stopPropagation();var _sel=window.getSelection&&window.getSelection();if(_sel&&!_sel.isCollapsed&&String(_sel).length)return;toggleCommentaryView(bi,ch,v);};
     if(notes[vkey(bi,ch,v)])d.classList.add('hasnote');
     d.querySelector('.vn').onclick=function(e){e.stopPropagation();if(selecting){toggleSelect(v);return;}openRich(bi,ch,v);};
+    d.querySelector('.veditbtn').onclick=function(e){e.stopPropagation();openVerseEdit(bi,ch,v);};
     d.querySelector('.spk').onclick=function(e){e.stopPropagation();speakVerse(bi,ch,v);};
     var _sl=(typeof sermonLinkEl==='function')?sermonLinkEl(bi,ch,v):null;if(_sl)frag.appendChild(_sl);
     frag.appendChild(d);
@@ -1815,6 +1832,7 @@ $('popMark').onclick=function(){if(!popV)return;var k=vkey(popV.bi,popV.ch,popV.
 $('popCopy').onclick=function(){if(!popV)return;var s=refLabel(popV.bi,popV.ch,popV.v)+'\n'+verseText(popV.bi,popV.ch,popV.v);if(navigator.clipboard)navigator.clipboard.writeText(s).then(function(){toast('Copied');});else toast('Could not copy');};
 $('popLink').onclick=function(){if(!popV)return;var h='#'+encodeURIComponent(BOOKS[popV.bi].e||BOOKS[popV.bi].t)+'.'+(popV.ch+1)+'.'+(popV.v+1);var url;try{url=location.href.split('#')[0]+h;}catch(e){url=h;}if(navigator.clipboard)navigator.clipboard.writeText(url).then(function(){toast('Verse link copied');});else toast(h);};
 $('popShare').onclick=function(){if(!popV)return;var s=refLabel(popV.bi,popV.ch,popV.v)+'\n'+verseText(popV.bi,popV.ch,popV.v);if(navigator.share)navigator.share({title:'Holy Bible',text:s}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(s).then(function(){toast('Copied — share it');});};
+if($('popEditV'))$('popEditV').onclick=function(){if(!popV)return;var p=popV;closePopover();openVerseEdit(p.bi,p.ch,p.v);};
 $('pClose').onclick=closePanel;$('veil').onclick=closePanel;
 
 /* ---------- inline note (above the verse) ---------- */
@@ -2800,14 +2818,29 @@ var cvOpen = null;
 function showCommentaryView(bi, ch, v){
   hideCommentaryView();
   var el = $('v' + v); if (!el || !el.parentNode) return;
-  var k = vkey(bi, ch, v), c = notes[k];
+  var k = vkey(bi, ch, v), c = notes[k], edited = !!vedits[k];
   var box = document.createElement('div');
   box.className = 'cvbox show'; box.id = 'cvBox';
-  box.innerHTML = '<div class="cvhead"><span>' + esc(refLabel(bi, ch, v)) + ' · Commentary</span><button class="xbtn" id="cvClose" aria-label="Close">✕</button></div>' +
-    '<div class="cvbody">' + (c ? richDisp(c) : '<span class="cvmuted">No commentary yet — tap the verse number to write one.</span>') + '</div>';
+  box.innerHTML = '<div class="cvhead"><span>' + esc(refLabel(bi, ch, v)) + (edited ? ' · ✎ Edited' : ' · Commentary') + '</span><button class="xbtn" id="cvClose" aria-label="Close">✕</button></div>' +
+    '<div class="cvbody">' + (c ? richDisp(c) : '<span class="cvmuted">No commentary yet — tap ✎ Commentary to write one.</span>') + '</div>' +
+    '<div class="cvactions">' +
+      '<button type="button" class="btn" id="cvEditC">✎ Commentary</button>' +
+      '<button type="button" class="btn ghost" id="cvEditV">✎ Edit verse</button>' +
+      '<button type="button" class="btn ghost" id="cvFav">' + (marks[k] ? '★ Unfavorite' : '★ Favorite') + '</button>' +
+    '</div>';
   el.parentNode.insertBefore(box, el);
   cvOpen = {bi: bi, ch: ch, v: v};
   var cl = $('cvClose'); if (cl) cl.onclick = function(e){ e.stopPropagation(); hideCommentaryView(); };
+  var ec = $('cvEditC'); if (ec) ec.onclick = function(e){ e.stopPropagation(); hideCommentaryView(); openRich(bi, ch, v); };
+  var ev = $('cvEditV'); if (ev) ev.onclick = function(e){ e.stopPropagation(); hideCommentaryView(); openVerseEdit(bi, ch, v); };
+  var ef = $('cvFav'); if (ef) ef.onclick = function(e){
+    e.stopPropagation();
+    var kk = vkey(bi, ch, v);
+    if (marks[kk]) delete marks[kk]; else marks[kk] = true;
+    save(LS.marks, marks); renderMarks(); refreshBadges();
+    ef.textContent = marks[kk] ? '★ Unfavorite' : '★ Favorite';
+    toast(marks[kk] ? '★ Added to favorites' : 'Removed from favorites');
+  };
 }
 function hideCommentaryView(){
   var box = document.getElementById('cvBox');
@@ -2962,10 +2995,13 @@ function saveVerseEdit(){
 }
 function resetVerseEdit(){
   if (!curEdit) return;
-  delete vedits[vkey(curEdit.bi, curEdit.ch, curEdit.v)];
+  var e = curEdit;
+  delete vedits[vkey(e.bi, e.ch, e.v)];
   save('tbb_vedit_v1', vedits);
-  $('veText').value = BOOKS[curEdit.bi].c[curEdit.ch][curEdit.v];
+  $('veText').value = BOOKS[e.bi].c[e.ch][e.v];
   $('veReset').style.display = 'none';
+  if (S.view === 'read' && e.bi === S.bi && e.ch === S.ch) refreshVerse(e.bi, e.ch, e.v);
+  renderNotes();
   refreshBadges();
   toast('Original restored');
 }
@@ -3018,7 +3054,7 @@ function renderNotes(){
     ek.forEach(function(k){
       var p = parse(k), d = document.createElement('div'); d.className = 'noteitem';
       d.innerHTML = '<div class="ref">✎ ' + esc(refLabel(p[0], p[1], p[2])) + '</div><div class="nt">' + esc(vedits[k]) + '</div>';
-      d.onclick = function(){ jumpVerse(p[0], p[1], p[2], true); };
+      d.onclick = function(){ openVerseEdit(p[0], p[1], p[2]); };
       d.style.cursor = 'pointer'; list.appendChild(d);
     });
   }
@@ -3436,6 +3472,10 @@ $('richClose').onclick = closeRich;
 $('richCancel').onclick = closeRich;
 $('richSave').onclick = saveRich;
 $('richDel').onclick = deleteRich;
+if ($('richEditV')) $('richEditV').onclick = function(){
+  if (!richCur) return;
+  var t = richCur; closeRich(); openVerseEdit(t.bi, t.ch, t.v);
+};
 $('richModal').addEventListener('click', function(e){ if (e.target === this) closeRich(); });
 $('veClose').onclick = function(){ $('veSheet').classList.remove('open'); curEdit = null; };
 $('veSave').onclick = saveVerseEdit;
