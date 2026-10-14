@@ -287,11 +287,11 @@ html[data-theme="dark"] .tabbar button.on,html[data-theme="night"] .tabbar butto
 .tb-swatches{display:inline-flex;gap:4px;align-items:center;flex-wrap:wrap}
 .tbs{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);padding:0;cursor:pointer;flex:0 0 auto}
 .tbs:hover{transform:scale(1.14);border-color:var(--accent)}
-.redit{min-height:170px;max-height:40vh;overflow:auto;padding:12px;border:1px solid var(--line);border-radius:0 0 10px 10px;background:var(--surface);color:var(--text);font-size:16px;line-height:1.7;outline:none;-webkit-overflow-scrolling:touch}
+.redit{min-height:170px;max-height:40vh;overflow:auto;padding:10px;border:1px solid var(--line);border-radius:0 0 10px 10px;background:var(--surface);color:var(--text);font-size:16px;line-height:1.5;outline:none;-webkit-overflow-scrolling:touch}
 .redit:focus{border-color:var(--accent)}
 .redit:empty:before{content:attr(data-ph);color:var(--muted);opacity:.6}
 .redit h1{font-size:20px;margin:7px 0 3px}.redit h2{font-size:18px;margin:7px 0 3px}.redit h3{font-size:16px;margin:7px 0 3px}
-.redit ul,.redit ol{margin:6px 0 6px 22px}.redit li{margin:2px 0}
+.redit ul,.redit ol{margin:4px 0;padding-left:22px}.redit li{margin:1px 0;padding-left:2px}
 .redit blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:6px 0;color:var(--muted)}
 .redit a.vref{color:var(--accent);text-decoration:underline;cursor:pointer}
 .ncomment a.vref{color:var(--accent);text-decoration:underline;cursor:pointer}
@@ -410,7 +410,7 @@ html[data-theme="dark"] .cvhead,html[data-theme="night"] .cvhead,html[data-theme
 .cvbody a.vref{color:var(--accent);text-decoration:underline;cursor:pointer;font-weight:600}
 html[data-theme="dark"] .cvbody a.vref,html[data-theme="night"] .cvbody a.vref,html[data-theme="slate"] .cvbody a.vref,html[data-theme="coffee"] .cvbody a.vref{color:var(--gold2)}
 .cvbody h1{font-size:18px;margin:6px 0 3px}.cvbody h2{font-size:16px;margin:6px 0 3px}.cvbody h3{font-size:15px;margin:6px 0 3px}
-.cvbody ul,.cvbody ol{margin:5px 0 5px 20px}.cvbody li{margin:2px 0}
+.cvbody ul,.cvbody ol{margin:4px 0;padding-left:20px}.cvbody li{margin:1px 0}
 .cvbody blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:6px 0;color:var(--muted)}
 .cvmuted{color:var(--muted);font-style:italic}
 .cvactions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--line);background:var(--surface2)}
@@ -442,8 +442,11 @@ html[data-theme="coffee"] header{background:linear-gradient(180deg,#2b2016,#1913
 .sermon-filters .btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
 html[data-theme="dark"] .sermon-filters .btn.on,html[data-theme="night"] .sermon-filters .btn.on,html[data-theme="slate"] .sermon-filters .btn.on,html[data-theme="coffee"] .sermon-filters .btn.on{color:#20160a}
 .dtable td.cat{color:var(--muted)}
-.dtable tr.sgroup td{background:var(--surface2);font-weight:700;color:var(--accent);font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:8px 12px;cursor:default}
-html[data-theme="dark"] .dtable tr.sgroup td,html[data-theme="night"] .dtable tr.sgroup td,html[data-theme="slate"] .dtable tr.sgroup td,html[data-theme="coffee"] .dtable tr.sgroup td{color:var(--gold2)}
+.dtable tr.sgroup td{background:var(--surface2);color:var(--text);font-size:13px;letter-spacing:0;text-transform:none;padding:9px 12px;cursor:default;border-top:1px solid var(--line)}
+.dtable tr.sgroup:first-child td{border-top:none}
+.dtable tr.sgroup .gname{display:inline-block;font-weight:700;color:var(--accent);font-size:13.5px;letter-spacing:.01em}
+.dtable tr.sgroup .gcount{float:right;font-family:var(--sans);font-size:11px;font-weight:600;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 9px;line-height:1.5}
+html[data-theme="dark"] .dtable tr.sgroup .gname,html[data-theme="night"] .dtable tr.sgroup .gname,html[data-theme="slate"] .dtable tr.sgroup .gname,html[data-theme="coffee"] .dtable tr.sgroup .gname{color:var(--gold2)}
 .dtablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
 .dtable{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:14px}
 .dtable th{background:var(--surface2);text-align:left;padding:10px 12px;font-weight:700;color:var(--muted);white-space:nowrap;border-bottom:1px solid var(--line)}
@@ -470,9 +473,9 @@ html[data-theme="dark"] #sermonPin.on,html[data-theme="night"] #sermonPin.on,htm
 html[data-theme="dark"] .sermlink,html[data-theme="night"] .sermlink,html[data-theme="slate"] .sermlink,html[data-theme="coffee"] .sermlink{color:var(--gold2)}
 
 /* ================= TOGGLE LIST (Notion-style collapsible outline) ================= */
-.ntoggle{margin:6px 0}
-.ntog-head{display:flex;align-items:flex-start;gap:4px}
-.ntog-tri{display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:34px;padding:0;cursor:pointer;color:var(--muted);user-select:none;-webkit-user-select:none;-webkit-user-modify:read-only;flex:0 0 auto;font-size:17px;border-radius:8px;caret-color:transparent}
+.ntoggle{margin:2px 0}
+.ntog-head{display:flex;align-items:center;gap:3px}
+.ntog-tri{display:inline-flex;align-items:center;justify-content:center;width:34px;min-height:34px;padding:0;cursor:pointer;color:var(--muted);user-select:none;-webkit-user-select:none;-webkit-user-modify:read-only;flex:0 0 auto;font-size:19px;border-radius:8px;caret-color:transparent}
 .ntog-head{user-select:none;-webkit-user-select:none}
 .ntog-title{user-select:text;-webkit-user-select:text;caret-color:auto}
 .ntog-tri:hover{background:var(--surface2);color:var(--accent)}
@@ -493,7 +496,7 @@ html[data-theme="dark"] .sermlink,html[data-theme="night"] .sermlink,html[data-t
 .svbody{font-size:17px;line-height:1.85;color:var(--text);word-wrap:break-word;overflow-wrap:break-word;overflow-x:hidden}
 .svbody h1{font-size:23px;margin:12px 0 5px}.svbody h2{font-size:20px;margin:12px 0 5px}.svbody h3{font-size:18px;margin:10px 0 4px}
 .svbody p{margin:8px 0}
-.svbody ul,.svbody ol{margin:8px 0 8px 24px}
+.svbody ul,.svbody ol{margin:6px 0;padding-left:24px}
 .svbody blockquote{border-left:3px solid var(--accent);padding-left:12px;margin:10px 0;color:var(--muted)}
 .svbody a.vref{color:var(--accent);text-decoration:underline;cursor:pointer}
 .svbody img{max-width:100%;height:auto;border-radius:8px}
@@ -501,14 +504,14 @@ html[data-theme="dark"] .sermlink,html[data-theme="night"] .sermlink,html[data-t
 html[data-theme="dark"] .svbody a.vref,html[data-theme="night"] .svbody a.vref,html[data-theme="slate"] .svbody a.vref,html[data-theme="coffee"] .svbody a.vref{color:var(--gold2)}
 
 /* ================= TOGGLE: heading stays put, box drops below ================= */
-.ntog-body{margin:4px 0 6px 34px;padding:6px 12px;border-left:2px solid var(--line);border-radius:0 8px 8px 0;background:var(--surface2);min-height:1.6em}
+.ntog-body{margin:2px 0 3px 30px;padding:4px 10px;border-left:2px solid var(--line);border-radius:0 8px 8px 0;background:var(--surface2);min-height:1.5em}
 .ntog-title{cursor:pointer}
 .ntog-title:empty::before{content:attr(data-ph);color:var(--muted);font-weight:600;pointer-events:none}
 .tmeta{display:none;font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;line-height:1.35}
 
 /* ================= MOBILE ALIGNMENT ================= */
 @media (max-width:560px){
-  .ntog-body{margin-left:30px;padding:5px 9px}
+  .ntog-body{margin-left:26px;padding:4px 8px}
   .ntog-tri{width:34px;min-height:34px}
   .sermon-grid{gap:6px}
   .tb{padding:5px;gap:2px}
@@ -645,8 +648,8 @@ body{
 .redit h1,.svbody h1,.cvbody h1,.pophead span,.panel .phead .ref{font-family:var(--sans);letter-spacing:.01em}
 .redit h2,.svbody h2,.cvbody h2{font-family:var(--sans);font-weight:700}
 .redit h3,.svbody h3,.cvbody h3{font-family:var(--sans);font-weight:600}
-.redit p,.svbody p,.cvbody p{margin:.55em 0}
-.redit ul,.redit ol,.svbody ul,.svbody ol,.cvbody ul,.cvbody ol{line-height:1.8}
+.redit p,.svbody p,.cvbody p{margin:.35em 0}
+.redit ul,.redit ol,.svbody ul,.svbody ol,.cvbody ul,.cvbody ol{line-height:1.5}
 .redit blockquote,.svbody blockquote,.cvbody blockquote{line-height:1.85}
 
 /* =========================================================================
@@ -1147,7 +1150,7 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
 .ntog-move button{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--muted);font-size:11px;line-height:1;padding:0;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
 .ntog-move button:hover{color:var(--accent);border-color:var(--accent)}
 #svBody .ntog-move{display:none}
-@media (max-width:560px){ .ntog-move button{width:40px;height:40px;font-size:14px} .ntog-head{align-items:center} }
+@media (max-width:560px){ .ntog-move button{width:30px;height:30px;font-size:12px} .ntog-move{gap:2px;margin-left:4px} .redit{padding:8px} }
 </style>
 </head>
 <body>
@@ -3967,9 +3970,15 @@ function insertToggle(ed){
     host.insertBefore(trail, caretBlock);
     host.removeChild(caretBlock);
   } else if (caretBlock){
-    if (caretBlock.nextSibling) host.insertBefore(trail, caretBlock.nextSibling);
-    else host.appendChild(trail);
-    host.insertBefore(box, trail);
+    /* reuse an empty landing line already sitting here instead of stacking another */
+    var after = _ntogNextBlock(caretBlock);
+    if (after && after.nodeType === 1 && after.tagName === 'P' && !String(after.textContent || '').trim() && !after.querySelector('img,hr')){
+      host.insertBefore(box, after);
+    } else {
+      if (after) host.insertBefore(trail, after);
+      else host.appendChild(trail);
+      host.insertBefore(box, trail);
+    }
   } else {
     host.appendChild(box);
     host.appendChild(trail);
@@ -4609,7 +4618,7 @@ function renderSermons(){
     list.forEach(function(s){ var k = sermonSeriesKey(s) || '— No series —'; if (!groups[k]){ groups[k] = []; order.push(k); } groups[k].push(s); });
     order.forEach(function(k){
       var h = document.createElement('tr'); h.className = 'sgroup';
-      h.innerHTML = '<td colspan="4">' + esc(k) + ' · ' + groups[k].length + '</td>';
+      h.innerHTML = '<td colspan="4"><span class="gname">' + esc(k) + '</span><span class="gcount">' + groups[k].length + (groups[k].length === 1 ? ' sermon' : ' sermons') + '</span></td>';
       tb.appendChild(h);
       groups[k].forEach(addRow);
     });
