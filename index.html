@@ -130,7 +130,7 @@ html[data-theme="dark"] .panel .phead .ref,html[data-theme="night"] .panel .phea
 .act{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:9px 14px;font-family:var(--sans);font-size:14px;display:flex;align-items:center;gap:7px}
 .act:hover{border-color:var(--gold)}
 .act.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-.comlabel{font-family:var(--sans);font-size:13px;letter-spacing:.5px;color:var(--gold);font-weight:700;margin:6px 2px}
+.comlabel{font-family:var(--sans);font-size:13px;letter-spacing:.5px;color:var(--goldtxt);font-weight:700;margin:6px 2px}
 textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:12px;padding:12px;font-family:var(--serif);font-size:17px;line-height:1.8;background:var(--bg);resize:vertical}
 .notepreview{display:none;margin-top:10px;background:var(--surface2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.85;white-space:pre-wrap}
 .notepreview.show{display:block}
@@ -576,13 +576,13 @@ html[data-theme="sepia"]{
 }
 html[data-theme="ocean"]{
   --bg:#edf4f9; --surface:#ffffff; --surface2:#dce9f4;
-  --text:#12303f; --muted:#4d7186;
+  --text:#12303f; --muted:#3f6377;
   --accent:#15618f; --accent2:#0f4a70; --gold:#1d7fa8; --gold2:#2b96c0;
   --line:#cae0ee; --shadow:0 6px 24px rgba(20,70,110,.15);
 }
 html[data-theme="forest"]{
   --bg:#eef4ec; --surface:#ffffff; --surface2:#dcead7;
-  --text:#1c3320; --muted:#4f7050;
+  --text:#1c3320; --muted:#40603f;
   --accent:#2c6b33; --accent2:#1f5225; --gold:#3f8a3c; --gold2:#52a04d;
   --line:#cee2c9; --shadow:0 6px 24px rgba(30,70,30,.15);
 }
@@ -1114,7 +1114,8 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
 @media (max-width:560px){
   .hbtn{width:44px;height:44px;font-size:21px}
   .xbtn{width:44px;height:44px}
-  .rb{padding:10px 15px;font-size:13.5px;min-height:44px}
+  .readbar{gap:5px}
+  .rb{padding:7px 11px;font-size:12.5px;min-height:40px}
   .navbtn{min-height:48px}
   button.veditbtn{width:40px;height:40px;font-size:17px}
   .spk{width:40px;height:40px;font-size:16px}
@@ -1126,23 +1127,40 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   .pill{min-height:34px;display:inline-flex;align-items:center}
   .markbar .btn{min-height:38px}
   .act{min-height:44px}
+  /* notes actions: keep the grid balanced and tight */
+  #viewNotes > .row{gap:7px}
+  #viewNotes > .row .btn{min-height:40px;padding:8px 6px;font-size:12.5px}
+  #helpNotes{grid-column:1/-1}
+  /* commentary editor toolbar: compact so it wraps into fewer, even rows */
+  .tb{gap:2px;padding:5px}
+  .tbb{min-width:36px;min-height:36px;padding:5px 7px;font-size:13px}
+  .tbs{width:22px;height:22px}
+  .tb-color{width:32px;height:32px}
+  .tb-div{height:22px}
 }
 
 /* ================= MOBILE: sermon library action column =================
    The action column was too narrow, so the Delete icon was clipped on phones.
    Widen it, stop it clipping, and keep both row buttons comfortably tappable. */
 @media (max-width:560px){
-  .dtable th:nth-child(1),.dtable td.ser{width:18%}
-  .dtable th:nth-child(2),.dtable td.ti{width:35%}
-  .dtable th:nth-child(3),.dtable td.cat{width:24%}
-  .dtable th:nth-child(4),.dtable td.rowact{width:23%;overflow:visible;text-overflow:clip;padding-left:4px;padding-right:4px}
-  .dtable .rowpresent,.dtable .rowdel{padding:3px;font-size:15px;min-width:30px;min-height:30px;line-height:1;vertical-align:middle}
+  /* sermon library: keep Series · Title · Category · Present · Delete on ONE line */
+  .dtable th,.dtable td{padding:8px 6px;font-size:11.5px}
+  .dtable th{font-size:9.5px;letter-spacing:.03em}
+  .dtable td.ser,.dtable td.ti,.dtable td.cat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+  .dtable th:nth-child(1),.dtable td.ser{width:21%}
+  .dtable th:nth-child(2),.dtable td.ti{width:37%}
+  .dtable th:nth-child(3),.dtable td.cat{width:20%}
+  .dtable th:nth-child(4),.dtable td.rowact{width:22%;overflow:visible;text-overflow:clip;padding-left:3px;padding-right:3px}
+  .dtable .rowpresent,.dtable .rowdel{padding:2px;font-size:14px;min-width:30px;min-height:30px;line-height:1;vertical-align:middle}
+  .catpill{font-size:10px;padding:1px 6px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 }
 /* very narrow phones: give the Series/Category headers room to read in full */
 @media (max-width:380px){
-  .dtable th{font-size:9px;letter-spacing:.03em}
+  .dtable th{font-size:9px;letter-spacing:.02em}
+  .dtable th:nth-child(1),.dtable td.ser{width:23%}
   .dtable th:nth-child(2),.dtable td.ti{width:33%}
-  .dtable th:nth-child(3),.dtable td.cat{width:26%}
+  .dtable th:nth-child(3),.dtable td.cat{width:22%}
+  .dtable th:nth-child(4),.dtable td.rowact{width:22%}
 }
 
 /* ================= TOGGLE: up / down move buttons ================= */
