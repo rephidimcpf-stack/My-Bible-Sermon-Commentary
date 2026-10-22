@@ -401,20 +401,18 @@ html[data-theme="slate"]{--bg:#10151c;--surface:#161d26;--surface2:#1f2833;--tex
 html[data-theme="coffee"]{--bg:#1a1410;--surface:#241b15;--surface2:#2f241c;--text:#efe6dc;--muted:#c2ad99;--accent:#d9a441;--accent2:#e6b84f;--gold:#d9a441;--gold2:#e6b84f;--line:#3a2c22;--shadow:0 6px 24px rgba(0,0,0,.6)}
 
 /* ================= INLINE COMMENTARY VIEW ================= */
-.cvbox{display:none;margin:6px 0 10px;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:10px 12px}
+.cvbox{display:none;margin:6px 0 8px;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:12px;padding:9px 11px}
 .cvbox.show{display:block;animation:cvIn .18s ease}
 @keyframes cvIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.cvhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.cvhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 html[data-theme="dark"] .cvhead,html[data-theme="night"] .cvhead,html[data-theme="slate"] .cvhead,html[data-theme="coffee"] .cvhead{color:var(--gold2)}
-.cvbody{font-size:16px;line-height:1.75;color:var(--text);white-space:normal;word-wrap:break-word}
+.cvbody{font-size:15.5px;line-height:1.6;color:var(--text);white-space:normal;word-wrap:break-word}
 .cvbody a.vref{color:var(--accent);text-decoration:underline;cursor:pointer;font-weight:600}
 html[data-theme="dark"] .cvbody a.vref,html[data-theme="night"] .cvbody a.vref,html[data-theme="slate"] .cvbody a.vref,html[data-theme="coffee"] .cvbody a.vref{color:var(--gold2)}
 .cvbody h1{font-size:18px;margin:6px 0 3px}.cvbody h2{font-size:16px;margin:6px 0 3px}.cvbody h3{font-size:15px;margin:6px 0 3px}
 .cvbody ul,.cvbody ol{margin:4px 0;padding-left:20px}.cvbody li{margin:1px 0}
 .cvbody blockquote{border-left:3px solid var(--accent);padding-left:10px;margin:6px 0;color:var(--muted)}
 .cvmuted{color:var(--muted);font-style:italic}
-.cvactions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px 12px;border-top:1px solid var(--line);background:var(--surface2)}
-.cvactions .btn{font-size:13.5px;padding:8px 12px}
 button.veditbtn{
   flex:0 0 auto;align-self:flex-start;margin-top:1px;
   width:30px;height:30px;border-radius:8px;border:none;
@@ -1264,6 +1262,14 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
   .tbs{width:20px;height:20px}
   .tb-div{height:20px}
 }
+/* ================= WORD-COMMENT UI: keep the buttons small (phone + desktop) ================= */
+.whlbar .hlsw{width:28px;height:28px;border-radius:8px;font-size:13px}
+.whlbar #whlCmBtn{font-size:13px;line-height:1}
+.whlcbar .btn,.wcmpop .btn{padding:5px 11px;font-size:12.5px;border-radius:8px;min-height:0;line-height:1.25}
+@media (max-width:600px){
+  .whlbar .hlsw{width:26px;height:26px}
+  .whlcbar .btn,.wcmpop .btn{padding:5px 10px;font-size:12px;min-height:0}
+}
 </style>
 </head>
 <body>
@@ -1999,10 +2005,18 @@ function openPanel(bi,ch,v){
   $('rbVN').textContent=v+1;
 }
 function closePanel(){$('veil').classList.remove('open');$('panel').classList.remove('open');}
-function openPopover(bi,ch,v){
-  popV={bi:bi,ch:ch,v:v};
-  $('popRef').textContent=refLabel(bi,ch,v);
-  $('popText').textContent=verseText(bi,ch,v);
+function openPopover(bi,ch,v,v2){
+  if(v2==null)v2=v; if(v2<v)v2=v;
+  if(v2>=BOOKS[bi].c[ch].length)v2=BOOKS[bi].c[ch].length-1;
+  popV={bi:bi,ch:ch,v:v,v2:v2};
+  if(v2>v){
+    $('popRef').textContent=(BOOKS[bi].e||BOOKS[bi].t)+' '+(ch+1)+':'+(v+1)+'-'+(v2+1);
+    var _pv=[];for(var _i=v;_i<=v2;_i++)_pv.push(esc(verseText(bi,ch,_i)));
+    $('popText').innerHTML=_pv.join('<br>');
+  }else{
+    $('popRef').textContent=refLabel(bi,ch,v);
+    $('popText').textContent=verseText(bi,ch,v);
+  }
   var k=vkey(bi,ch,v),c=notes[k],pc=$('popComment');
   if(c){pc.className='ncomment';pc.innerHTML=richDisp(c);}else{pc.className='ncomment muted';pc.textContent='No note for this verse.';}
   $('popMark').classList.toggle('on',!!marks[k]);
@@ -2142,7 +2156,8 @@ document.addEventListener('click',function(e){
   var a=e.target&&e.target.closest?e.target.closest('.vref'):null;
   if(a){e.preventDefault();
     var bi=+a.getAttribute('data-b'),c=+a.getAttribute('data-c'),v=+a.getAttribute('data-v');
-    if(bi>=0&&c>=0&&v>=0)openPopover(bi,c,v);}
+    var _v2=a.getAttribute('data-v2'),v2=(_v2!=null&&_v2!=='')?+_v2:v;
+    if(bi>=0&&c>=0&&v>=0)openPopover(bi,c,v,v2);}
 });
 /* ---------- search ---------- */
 var mode='all';
@@ -2954,7 +2969,7 @@ function _sanNode(html){
       var nm = at[k].name.toLowerCase(), val = at[k].value;
       if (nm === 'style'){ if (/expression|javascript:|url\s*\(|@import|behavior/i.test(val)) el.removeAttribute('style'); }
       else if (el.tagName === 'A' && nm === 'href'){ if (!/^(xref:|#)/i.test(val)) el.removeAttribute('href'); }
-      else if (el.tagName === 'A' && (nm === 'data-b' || nm === 'data-c' || nm === 'data-v')){ /* keep */ }
+      else if (el.tagName === 'A' && (nm === 'data-b' || nm === 'data-c' || nm === 'data-v' || nm === 'data-v2')){ /* keep */ }
       else if (nm === 'class'){ /* drop, re-set below */ }
       else el.removeAttribute(at[k].name);
     }
@@ -3004,26 +3019,11 @@ function showCommentaryView(bi, ch, v){
   var k = vkey(bi, ch, v), c = notes[k], edited = !!vedits[k];
   var box = document.createElement('div');
   box.className = 'cvbox show'; box.id = 'cvBox';
-  box.innerHTML = '<div class="cvhead"><span>' + esc(refLabel(bi, ch, v)) + (edited ? ' · ✎ Edited' : ' · Commentary') + '</span><button class="xbtn" id="cvClose" aria-label="Close">✕</button></div>' +
-    '<div class="cvbody">' + (c ? richDisp(c) : '<span class="cvmuted">No commentary yet — tap ✎ Commentary to write one.</span>') + '</div>' +
-    '<div class="cvactions">' +
-      '<button type="button" class="btn" id="cvEditC">✎ Commentary</button>' +
-      '<button type="button" class="btn ghost" id="cvEditV">✎ Edit verse</button>' +
-      '<button type="button" class="btn ghost" id="cvFav">' + (marks[k] ? '★ Unfavorite' : '★ Favorite') + '</button>' +
-    '</div>';
+  box.innerHTML = '<div class="cvhead"><span>' + esc(refLabel(bi, ch, v)) + (edited ? ' · ✎ Edited' : '') + '</span><button class="xbtn" id="cvClose" aria-label="Close">✕</button></div>' +
+    '<div class="cvbody">' + (c ? richDisp(c) : '<span class="cvmuted">No commentary for this verse.</span>') + '</div>';
   el.parentNode.insertBefore(box, el);
   cvOpen = {bi: bi, ch: ch, v: v};
   var cl = $('cvClose'); if (cl) cl.onclick = function(e){ e.stopPropagation(); hideCommentaryView(); };
-  var ec = $('cvEditC'); if (ec) ec.onclick = function(e){ e.stopPropagation(); hideCommentaryView(); openRich(bi, ch, v); };
-  var ev = $('cvEditV'); if (ev) ev.onclick = function(e){ e.stopPropagation(); hideCommentaryView(); openVerseEdit(bi, ch, v); };
-  var ef = $('cvFav'); if (ef) ef.onclick = function(e){
-    e.stopPropagation();
-    var kk = vkey(bi, ch, v);
-    if (marks[kk]) delete marks[kk]; else marks[kk] = true;
-    save(LS.marks, marks); renderMarks(); refreshBadges();
-    ef.textContent = marks[kk] ? '★ Unfavorite' : '★ Favorite';
-    toast(marks[kk] ? '★ Added to favorites' : 'Removed from favorites');
-  };
 }
 function hideCommentaryView(){
   var box = document.getElementById('cvBox');
@@ -3092,19 +3092,24 @@ function execEditEl(ed, cmd, ui, val){
 function execEdit(cmd, ui, val){ return execEditEl($('richEditor'), cmd, ui, val); }
 function parseRefLink(str){
   str = String(str || '').trim();
-  var m = str.match(/^(.*?)\s*(\d+)(?:\s*[:.\s]\s*(\d+))?\s*$/);
+  /* accepts a single verse (John 3:16) or a verse range (John 3:16-18 / John 3:16–18) */
+  var m = str.match(/^(.*?)\s*(\d+)(?:\s*[:.\s]\s*(\d+)(?:\s*[-–—]\s*(\d+))?)?\s*$/);
   if (!m) return null;
   var bi = findBook(m[1]); if (bi < 0) return null;
   var ch = parseInt(m[2], 10) - 1; if (ch < 0 || ch >= BOOKS[bi].c.length) return null;
   var v = m[3] ? parseInt(m[3], 10) - 1 : 0; if (v < 0 || v >= BOOKS[bi].c[ch].length) v = 0;
-  return {bi: bi, ch: ch, v: v};
+  var v2 = m[4] ? parseInt(m[4], 10) - 1 : v; if (v2 < v) v2 = v;
+  if (v2 >= BOOKS[bi].c[ch].length) v2 = BOOKS[bi].c[ch].length - 1;
+  return {bi: bi, ch: ch, v: v, v2: v2};
 }
 function insertXrefInto(ed){
-  var ref = prompt('Bible reference (e.g. యోహాను 3:16 / John 3:16)');
+  var ref = prompt('Bible reference (e.g. యోహాను 3:16 / John 3:16 / John 3:16-18)');
   if (!ref) return;
   var m = parseRefLink(ref);
   if (!m){ toast('Reference not found'); return; }
-  execEditEl(ed, 'insertHTML', false, '<a class="vref" href="xref:' + encodeURIComponent(ref) + '" data-b="' + m.bi + '" data-c="' + m.ch + '" data-v="' + m.v + '">' + esc(ref) + '</a>&nbsp;');
+  var attrs = ' data-b="' + m.bi + '" data-c="' + m.ch + '" data-v="' + m.v + '"';
+  if (m.v2 != null && m.v2 > m.v) attrs += ' data-v2="' + m.v2 + '"';
+  execEditEl(ed, 'insertHTML', false, '<a class="vref" href="xref:' + encodeURIComponent(ref) + '"' + attrs + '>' + esc(ref) + '</a>&nbsp;');
 }
 function insertXref(){ insertXrefInto($('richEditor')); }
 function buildRichHl(){
@@ -4927,16 +4932,36 @@ function renderSermons(){
       if (title){
         e.preventDefault();
         var box = title.closest('.ntoggle'); if (!box) return;
-        /* Enter at the end of a written heading steps OUT to a normal line below the
-           toggle, so you can keep typing text. (To add another toggle, use the
-           Toggle button — the new toggle takes the empty line's place.) */
-        if (_ntogEdge(title, sel.getRangeAt(0), true) && String(title.textContent || '').trim()){
-          var land = _ntogLandingAfter(box);
-          if (land) _ntogSetCaret(land, false);
-          try{ se.focus(); }catch(e){}
-          try{ seHistPush(se); }catch(e){}
-          try{ scheduleSermonSave(); }catch(err){}
-          return;
+        /* Enter at the end of the heading starts a NEW toggle right below this one
+           and drops the caret into the new toggle's heading, so the list keeps
+           going like a list. A blank line is kept below the new toggle so you can
+           click out of the list and type normal text. */
+        if (_ntogEdge(title, sel.getRangeAt(0), true)){
+          var host = box.parentNode;
+          if (host){
+            var newBox = _ntogBuild();
+            var newTrail = document.createElement('p');
+            newTrail.innerHTML = '<br>';
+            var nxt = _ntogNextBlock(box);
+            if (nxt && nxt.nodeType === 1 && nxt.tagName === 'P' && !String(nxt.textContent || '').trim() && !nxt.querySelector('img,hr,table,iframe,.ntoggle')){
+              /* reuse the empty landing line: the new toggle takes its place */
+              host.insertBefore(newBox, nxt);
+              host.insertBefore(newTrail, nxt);
+              host.removeChild(nxt);
+            } else if (nxt){
+              host.insertBefore(newBox, nxt);
+              host.insertBefore(newTrail, nxt);
+            } else {
+              host.appendChild(newBox);
+              host.appendChild(newTrail);
+            }
+            newBox.classList.remove('collapsed');
+            _ntogSetCaret(newBox.querySelector('.ntog-title'), true);
+            try{ se.focus(); }catch(errA){}
+            try{ seHistPush(se); }catch(errB){}
+            try{ scheduleSermonSave(); }catch(errC){}
+            return;
+          }
         }
         var body = box.querySelector('.ntog-body');
         if (!body){
