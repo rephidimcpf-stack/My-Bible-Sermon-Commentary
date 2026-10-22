@@ -668,11 +668,11 @@ body{
 #sermonView .sveyebrow{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:5px}
 html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonView .sveyebrow,html[data-theme="slate"] #sermonView .sveyebrow,html[data-theme="coffee"] #sermonView .sveyebrow{color:var(--gold2)}
 #sermonView .rmodal-head h3{font-family:var(--serif);font-size:22px;font-weight:700}
-#sermonView .rmodal-body{padding:34px 22px 64px}
+#sermonView .rmodal-body{padding:12px 16px 14px}
 #sermonView .svchips{margin-bottom:20px}
 #sermonView .svchip{background:transparent;border-color:var(--line);color:var(--muted);font-size:11.5px;letter-spacing:.02em}
-#sermonView .svbody{font-size:1.1em;line-height:2.05;letter-spacing:.003em}
-#sermonView .svbody p{margin:0 0 1.05em}
+#sermonView .svbody{font-size:.95em;line-height:1.62;letter-spacing:.001em}
+#sermonView .svbody p{margin:0 0 .62em}
 #sermonView .svbody h1{margin:1.2em 0 .4em}#sermonView .svbody h2{margin:1.15em 0 .35em}#sermonView .svbody h3{margin:1em 0 .3em}
 #sermonView .svbody>h1:first-child,#sermonView .svbody>h2:first-child,#sermonView .svbody>h3:first-child,#sermonView .svbody>p:first-child{margin-top:0}
 #sermonView .svempty{color:var(--muted);text-align:center;padding:40px 0}
@@ -734,7 +734,7 @@ html[data-theme="dark"] #sermonView .sveyebrow,html[data-theme="night"] #sermonV
 #sermonView .svtools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-right:auto}
 #sermonView .svtools .btn{min-height:36px;padding:8px 12px;font-size:13px}
 #sermonView .svtools .svfs{font-weight:700;min-width:42px;padding:8px 10px}
-#sermonView .svbody{font-size:var(--sv-fs, 1.1em);transition:font-size .15s ease}
+#sermonView .svbody{font-size:var(--sv-fs, .95em);transition:font-size .15s ease}
 #sermonView.svpresenting .svbody{font-size:var(--sv-fs, 1.2em)}
 .rowpresent{background:transparent;border:0;cursor:pointer;font-size:16px;padding:4px 6px;opacity:.75}
 .rowpresent:hover{opacity:1}
@@ -1059,8 +1059,8 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
 
   /* present / sermon view */
   #sermonView .rmodal-head{padding:12px 14px}
-  #sermonView .rmodal-body{padding:18px 14px 48px}
-  #sermonView .svbody{font-size:1.05em;line-height:1.9}
+  #sermonView .rmodal-body{padding:10px 14px 12px}
+  #sermonView .svbody{font-size:.95em;line-height:1.58}
   #sermonView .rmodal-foot{
     padding:8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
     gap:5px;
@@ -1169,6 +1169,101 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
 .ntog-move button:hover{color:var(--accent);border-color:var(--accent)}
 #svBody .ntog-move{display:none}
 @media (max-width:560px){ .ntog-move button{width:30px;height:30px;font-size:12px} .ntog-move{gap:2px;margin-left:4px} .redit{padding:8px} }
+
+/* ================= Notion-style blocks: callout / quote / divider / table ================= */
+.callout{display:flex;gap:9px;align-items:flex-start;background:var(--surface2);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px;margin:.5em 0}
+.callout-ic{flex:0 0 auto;font-size:1.05em;line-height:1.5;-webkit-user-select:none;user-select:none}
+.callout-tx{flex:1;min-width:0}
+.callout-tx:empty:before{content:'Type something\2026';color:var(--muted);pointer-events:none}
+.redit .blk-hr,.svbody .blk-hr,.cvbody .blk-hr,.ncomment .blk-hr{border:0;border-top:2px solid var(--line);margin:.9em 0}
+.redit .blk-table,.svbody .blk-table,.cvbody .blk-table,.ncomment .blk-table{width:100%;border-collapse:collapse;margin:.55em 0;font-size:.95em;table-layout:fixed}
+.blk-table td,.blk-table th{border:1px solid var(--line);padding:6px 9px;vertical-align:top;min-width:40px;overflow-wrap:break-word}
+.blk-table tr:first-child td{background:var(--surface2);font-weight:600;text-align:center}
+html[data-theme="dark"] .blk-table tr:first-child td,html[data-theme="night"] .blk-table tr:first-child td,html[data-theme="slate"] .blk-table tr:first-child td,html[data-theme="coffee"] .blk-table tr:first-child td{background:rgba(255,255,255,.05)}
+
+/* ================= tighter Bible reading text ================= */
+.verse{padding:6px 10px}
+.verse .vt{font-size:.95em;line-height:1.72;letter-spacing:.002em}
+.verse .vn{padding-top:.28em}
+
+/* ================= table controls (adjust rows / columns) ================= */
+.tblbar{position:fixed;display:none;gap:4px;z-index:1350;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;box-shadow:0 8px 24px rgba(0,0,0,.22);font-family:var(--sans);-webkit-user-select:none;user-select:none}
+.tblbar button{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:7px;padding:6px 9px;font:600 12.5px/1 var(--sans);cursor:pointer;white-space:nowrap;min-height:30px;display:inline-flex;align-items:center;justify-content:center}
+.tblbar button:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tblbar button.danger{color:var(--muted)}
+.tblbar button.danger:hover{background:#b3261e;color:#fff;border-color:#b3261e}
+@media (max-width:560px){ .tblbar button{padding:7px 8px;font-size:12px;min-height:34px} }
+
+/* ================= mobile: categorised tool menu (PC keeps the full toolbar) ================= */
+.tbmobwrap{display:none;position:relative}
+@media (max-width:600px), (pointer:coarse){
+  #richModal .tb,#sermonModal .tb{display:none}
+  .tbmobwrap{display:block}
+}
+.tbmob{display:flex;gap:3px;align-items:center;flex-wrap:wrap;padding:4px;background:var(--bg);border:1px solid var(--line);border-bottom:none;border-radius:10px 10px 0 0}
+.tbmobcat{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:7px;padding:5px 8px;font:600 11px/1 var(--sans);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;min-height:30px}
+.tbmobcat:after{content:'\25BE';font-size:8px;opacity:.55;line-height:1}
+.tbmobcat.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.tbmobcat.on:after{opacity:1}
+.tbmobpanel{position:absolute;top:100%;left:0;right:0;z-index:60;background:var(--surface);border:1px solid var(--line);border-top:none;border-radius:0 0 12px 12px;box-shadow:0 14px 34px rgba(0,0,0,.28);padding:7px;display:flex;flex-wrap:wrap;gap:5px;max-height:50vh;overflow:auto;-webkit-overflow-scrolling:touch}
+.tbmobpanel[hidden]{display:none}
+.tbmobitem{flex:1 1 auto;min-width:calc(33.333% - 5px);appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--surface2);color:var(--text);border-radius:8px;padding:7px 6px;font:600 12px/1.2 var(--sans);cursor:pointer;text-align:center;min-height:36px;display:inline-flex;align-items:center;justify-content:center}
+.tbmobitem:active{border-color:var(--accent);color:var(--accent)}
+.tbmoblab{flex:1 1 100%;font:700 9.5px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:2px 2px 0}
+.tbmobrow{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.tbmob .tbs{width:26px;height:26px}
+.tbmobcolor{flex:1 1 100%;width:100%;height:36px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);padding:2px}
+.tbmobfont{flex:1 1 100%;width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;background:var(--surface2);color:var(--text);font:600 12.5px var(--sans);padding:0 8px}
+
+/* ============ verse-edit sheet: compact bottom sheet, box sized to the text ============ */
+#veSheet{top:auto;left:0;right:0;bottom:0;height:auto;max-height:88vh;border-radius:16px 16px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.32)}
+#veSheet #veText{min-height:66px;max-height:46vh;resize:none;overflow:auto}
+
+/* ================= compact verse action icons (edit ✎ / speaker 🔊) ================= */
+.verse{gap:6px}
+button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
+.spk{width:26px;height:26px;font-size:12px;border-radius:7px}
+.vbadges{min-width:12px;padding:.1em 0 0}
+.vbadges:empty{display:none}
+@media (max-width:600px){
+  .verse{gap:4px}
+  button.veditbtn{width:30px;height:30px;font-size:14px}
+  .spk{width:30px;height:30px;font-size:13px}
+}
+
+/* ================= neat mobile sizing (final override) ================= */
+@media (max-width:600px){
+  .hbtn{width:38px;height:38px;font-size:18px;border-radius:10px}
+  .xbtn{width:36px;height:36px;font-size:19px;border-radius:9px}
+  .sheet .shead{padding:10px 12px;gap:8px}
+  .sheet .shead h2{font-size:16px}
+  .sheet .sbody{padding:12px}
+  .btn{padding:8px 12px;font-size:13px;border-radius:10px;min-height:38px}
+  .rb{padding:6px 10px;font-size:12px;min-height:34px}
+  .readbar{gap:5px;margin-bottom:10px}
+  .navbtn{min-height:42px;padding:9px;font-size:13.5px;border-radius:12px}
+  .chip{min-width:42px;height:42px;font-size:13.5px;border-radius:10px}
+  .act{padding:7px 11px;font-size:12.5px;min-height:36px}
+  .pill{padding:5px 10px;font-size:12.5px;min-height:30px}
+  .markbar .btn{padding:6px 10px;font-size:12px;min-height:32px}
+  .seg button{padding:6px 9px;font-size:12px}
+  .bookcard{padding:10px;font-size:14px;border-radius:10px}
+  .fontopt{padding:8px 12px;gap:9px;border-radius:10px}
+  .fontopt .fname{font-size:11.5px;min-width:70px}
+  .fontopt .fsample{font-size:17px}
+  .icon-opt{width:46px;height:46px;border-radius:11px}
+  #viewNotes > .row .btn{min-height:36px;padding:7px 6px;font-size:12px}
+  .sb-actions .btn{padding:6px 9px;font-size:11.5px}
+  .pactions .btn{min-height:36px;font-size:12.5px;padding:7px 8px}
+  .sermon-filters .btn,.sermon-filters select{font-size:12px;padding:7px 8px}
+  .sechead{min-height:38px}
+  #sermonView .svtools .btn{min-height:32px;padding:7px 10px;font-size:12.5px}
+  #sermonModal .rmodal-foot .btn{font-size:12px;padding:8px 6px;min-height:36px}
+  .tbb{min-width:32px;min-height:32px;padding:5px 6px;font-size:12.5px}
+  .tb-color{width:28px;height:28px}
+  .tbs{width:20px;height:20px}
+  .tb-div{height:20px}
+}
 </style>
 </head>
 <body>
@@ -1476,12 +1571,31 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
         <button class="tbb" type="button" data-cmd="insertUnorderedList" title="Bullet list">•</button>
         <button class="tbb" type="button" data-cmd="insertOrderedList" title="Numbered list">1.</button>
         <span class="tb-div"></span>
+        <button class="tbb" type="button" data-ins="callout" title="Callout">&#128161;</button>
+        <button class="tbb" type="button" data-ins="quote" title="Quote">&#10077;</button>
+        <button class="tbb" type="button" data-ins="divider" title="Divider">&#8213;</button>
+        <button class="tbb" type="button" data-ins="table" title="Table">&#9638;</button>
+        <span class="tb-div"></span>
         <input type="color" class="tb-color" id="tbFg" title="Text colour">
         <input type="color" class="tb-color" id="tbBg" title="Highlight colour">
         <span class="tb-swatches" id="tbFgSw" title="Text colour"></span>
         <span class="tb-swatches" id="tbBgSw" title="Highlight colour"></span>
         <span class="tb-div"></span>
         <button class="tbb" type="button" id="tbXref" title="Insert Bible reference">🔗</button>
+        <span class="tb-div"></span>
+        <select class="tb-font" id="richFont" title="Font">
+          <option value="">Font…</option>
+          <option value="'NotoSerifX',serif">Telugu Serif</option>
+          <option value="'NotoSansX',sans-serif">Telugu Sans</option>
+          <option value="'GiduguX',serif">Gidugu</option>
+          <option value="'SuravaramX',serif">Suravaram</option>
+          <option value="'RamarajaX',serif">Ramaraja</option>
+          <option value="Georgia,serif">Georgia</option>
+          <option value="'Times New Roman',serif">Times</option>
+          <option value="Arial,Helvetica,sans-serif">Arial</option>
+          <option value="'Courier New',monospace">Mono</option>
+        </select>
+        <span class="tb-div"></span>
         <button class="tbb" type="button" data-cmd="removeFormat" title="Clear formatting">✕</button>
       </div>
       <div class="redit" id="richEditor" contenteditable="true" data-ph="మీ వ్యాఖ్యానము ఇక్కడ రాయండి… Write your commentary here…"></div>
@@ -1504,8 +1618,8 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
   <div class="shead"><h2>Edit verse text</h2><button class="xbtn" id="veClose">✕</button></div>
   <div class="sbody">
     <div class="vref2" id="veRef" style="margin-bottom:8px"></div>
-    <textarea id="veText" spellcheck="false" style="width:100%;min-height:150px;padding:12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:16px;line-height:1.7;background:var(--surface);color:var(--text)"></textarea>
-    <p class="help" style="font-family:var(--sans);font-size:13px;color:var(--muted);margin:10px 0 0">Correct a typo or note a reading. Your change is shown everywhere and can be restored anytime.</p>
+    <textarea id="veText" spellcheck="false" style="width:100%;min-height:66px;padding:10px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14.5px;line-height:1.5;background:var(--surface);color:var(--text)"></textarea>
+    <p class="help" style="font-family:var(--sans);font-size:13px;color:var(--muted);margin:8px 0 0">Correct a typo or note a reading. Your change is shown everywhere and can be restored anytime.</p>
     <div class="row" style="margin-top:10px"><button class="btn ghost" id="veReset">↺ Restore original</button><button class="btn" id="veSave">Save</button></div>
   </div>
 </div>
@@ -1617,6 +1731,11 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
         <button class="tbb" type="button" data-cmd="insertUnorderedList" title="Bullet list">•</button>
         <button class="tbb" type="button" data-cmd="insertOrderedList" title="Numbered list">1.</button>
         <span class="tb-div"></span>
+        <button class="tbb" type="button" data-ins="callout" title="Callout">&#128161;</button>
+        <button class="tbb" type="button" data-ins="quote" title="Quote">&#10077;</button>
+        <button class="tbb" type="button" data-ins="divider" title="Divider">&#8213;</button>
+        <button class="tbb" type="button" data-ins="table" title="Table">&#9638;</button>
+        <span class="tb-div"></span>
         <input type="color" class="tb-color" id="sermonFg" title="Text colour">
         <input type="color" class="tb-color" id="sermonBg" title="Highlight colour">
         <span class="tb-swatches" id="sermonFgSw" title="Text colour"></span>
@@ -1630,12 +1749,11 @@ html[data-theme="dark"] .svstate.ok,html[data-theme="night"] .svstate.ok,html[da
         <button class="tbb" type="button" id="sermonToggle" title="Toggle list (collapsible)">▸ Toggle</button>
         <select class="tb-font" id="sermonFont" title="Font">
           <option value="">Font…</option>
-          <option value="'Noto Serif Telugu',serif">Telugu Serif</option>
-          <option value="'Noto Sans Telugu',sans-serif">Telugu Sans</option>
-          <option value="'Gidugu',sans-serif">Gidugu</option>
-          <option value="'Ramabhadra',serif">Ramabhadra</option>
-          <option value="'Mandali',serif">Mandali</option>
-          <option value="'Tenali Ramakrishna',serif">Tenali</option>
+          <option value="'NotoSerifX',serif">Telugu Serif</option>
+          <option value="'NotoSansX',sans-serif">Telugu Sans</option>
+          <option value="'GiduguX',serif">Gidugu</option>
+          <option value="'SuravaramX',serif">Suravaram</option>
+          <option value="'RamarajaX',serif">Ramaraja</option>
           <option value="Georgia,serif">Georgia</option>
           <option value="'Times New Roman',serif">Times</option>
           <option value="Arial,Helvetica,sans-serif">Arial</option>
@@ -4120,7 +4238,7 @@ function openSermon(id){
 function closeSermon(){ $('sermonModal').classList.remove('open'); sermonCur = null; }
 /* ---- reader / present view (read-only, opened from a pinned sermon) ---- */
 var sermonViewId = null;
-var svFontSize = 1.1;
+var svFontSize = 0.95;
 var svWakeLock = null;
 var svReturnId = null;
 var svReturnFocus = true;
@@ -4766,7 +4884,7 @@ function renderSermons(){
           if (nx && nx.nodeType === 1 && nx.tagName === 'P' && !String(nx.textContent || '').trim() && !nx.querySelector('img,hr,table,iframe')){
             var rest = nx.nextSibling;
             while (rest && rest.nodeType === 3 && !String(rest.nodeValue || '').trim()) rest = rest.nextSibling;
-            if (!rest || (rest.nodeType === 1 && rest.classList && rest.classList.contains('ntoggle'))){
+            if (rest && rest.nodeType === 1 && rest.classList && rest.classList.contains('ntoggle')){
               nx.parentNode.removeChild(nx);
             }
           }
@@ -4809,14 +4927,12 @@ function renderSermons(){
       if (title){
         e.preventDefault();
         var box = title.closest('.ntoggle'); if (!box) return;
-        /* Enter at the end of a written heading starts a NEW toggle right below */
+        /* Enter at the end of a written heading steps OUT to a normal line below the
+           toggle, so you can keep typing text. (To add another toggle, use the
+           Toggle button — the new toggle takes the empty line's place.) */
         if (_ntogEdge(title, sel.getRangeAt(0), true) && String(title.textContent || '').trim()){
-          var nb = _ntogBuild();
-          var host = box.parentNode;
-          var nx = _ntogNextBlock(box);
-          if (nx) host.insertBefore(nb, nx); else host.appendChild(nb);
-          nb.classList.remove('collapsed');
-          _ntogSetCaret(nb.querySelector('.ntog-title'), true);
+          var land = _ntogLandingAfter(box);
+          if (land) _ntogSetCaret(land, false);
           try{ se.focus(); }catch(e){}
           try{ seHistPush(se); }catch(e){}
           try{ scheduleSermonSave(); }catch(err){}
@@ -4837,6 +4953,21 @@ function renderSermons(){
       }
       var bodyEl = el.closest('.ntog-body');
       if (!bodyEl) return;
+      /* Enter on an empty last line of the body steps OUT below the toggle, so the
+         caret is never trapped inside the box. */
+      var cur = (el === bodyEl) ? null : el.closest('p,div,li,h1,h2,h3,h4,blockquote');
+      if (cur && cur.parentNode === bodyEl && !String(cur.textContent || '').replace(/\u200b/g, '').trim() && !cur.querySelector('img,hr,table,.ntoggle')){
+        var kids = Array.prototype.filter.call(bodyEl.children, function(n){ return /^(P|DIV|LI|H[1-4]|BLOCKQUOTE)$/.test(n.tagName); });
+        if (kids.length && kids[kids.length - 1] === cur){
+          e.preventDefault();
+          var ob = bodyEl.closest('.ntoggle');
+          var land2 = ob ? _ntogLandingAfter(ob) : null;
+          if (land2) _ntogSetCaret(land2, false);
+          try{ se.focus(); }catch(e2){}
+          try{ scheduleSermonSave(); }catch(err2){}
+          return;
+        }
+      }
       if (el === bodyEl){
         e.preventDefault();
         document.execCommand('insertHTML', false, '<p><br></p>');
@@ -5061,6 +5192,379 @@ buildTbSwatches();
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ var m = $('richModal'); if (m && m.classList.contains('open')) closeRich(); } });
 })();
 
+</script>
+<script>
+/* ============================================================================
+   Notion-style blocks for the editors: callout / quote / divider / table.
+   Purely additive — this block only adds new buttons (marked data-ins) and
+   wires them; it does not modify any existing editor code or behaviour.
+   ============================================================================ */
+(function(){
+  function insHTML(ed, html){
+    if (!ed) return;
+    try{ ed.focus(); }catch(e){}
+    var ok = false;
+    try{ ok = document.execCommand('insertHTML', false, html); }catch(e){ ok = false; }
+    if (!ok){ try{ ed.insertAdjacentHTML('beforeend', html); }catch(e){} }
+    try{ seHistPush(ed); }catch(e){}          /* sermon undo history, if present */
+    try{ scheduleSermonSave(); }catch(e){}    /* sermon auto-save, if present     */
+  }
+  function insCallout(ed){
+    insHTML(ed, '<div class="callout"><span class="callout-ic" contenteditable="false">&#128161;</span><span class="callout-tx"><br></span></div><p><br></p>');
+  }
+  function insQuote(ed){
+    insHTML(ed, '<blockquote><br></blockquote><p><br></p>');
+  }
+  function insDivider(ed){
+    insHTML(ed, '<hr class="blk-hr"><p><br></p>');
+  }
+  function insTable(ed, rows, cols){
+    if (!ed) return;
+    rows = rows || 3; cols = cols || 3;
+    var html = '<table class="blk-table" data-new="1"><tbody>';
+    for (var r = 0; r < rows; r++){
+      html += '<tr>';
+      for (var c = 0; c < cols; c++) html += '<td><br></td>';
+      html += '</tr>';
+    }
+    html += '</tbody></table><p><br></p>';
+    insHTML(ed, html);
+    /* drop the caret into the first cell so the fresh table is ready to edit */
+    var t = null;
+    try{ t = ed.querySelector('table.blk-table[data-new]'); }catch(e){}
+    if (t){
+      try{ t.removeAttribute('data-new'); }catch(e){}
+      try{
+        var cell = t.rows[0].cells[0];
+        var rg = document.createRange(); rg.selectNodeContents(cell); rg.collapse(false);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(rg);
+      }catch(e){}
+    }
+  }
+  var ACTIONS = { callout: insCallout, quote: insQuote, divider: insDivider, table: insTable };
+  function bind(modalId, editorId){
+    var modal = document.getElementById(modalId); if (!modal) return;
+    var btns = modal.querySelectorAll('.tbb[data-ins]');
+    for (var i = 0; i < btns.length; i++){
+      (function(b){
+        b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+        b.addEventListener('click', function(e){
+          e.preventDefault();
+          var fn = ACTIONS[b.getAttribute('data-ins')];
+          if (fn) fn(document.getElementById(editorId));
+        });
+      })(btns[i]);
+    }
+  }
+  bind('richModal', 'richEditor');
+  bind('sermonModal', 'sermonEditor');
+})();
+</script>
+<script>
+/* ============================================================================
+   Table controls for the editors: adjust rows and columns (add / delete).
+   Purely additive — the floating bar lives outside the editors and only ever
+   acts on .blk-table elements inside #richEditor / #sermonEditor.
+   ============================================================================ */
+(function(){
+  var bar = null;
+  var state = { table:null, cell:null, ed:null };
+
+  function editorFor(node){
+    var rich = document.getElementById('richEditor');
+    var ser  = document.getElementById('sermonEditor');
+    if (rich && rich.contains(node)) return rich;
+    if (ser  && ser.contains(node))  return ser;
+    return null;
+  }
+  function isVisible(el){
+    if (!el || !el.isConnected) return false;
+    var r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    var modal = el.closest('.modal-overlay');
+    return !modal || modal.classList.contains('open');
+  }
+  function build(){
+    if (bar) return;
+    bar = document.createElement('div');
+    bar.className = 'tblbar';
+    bar.setAttribute('contenteditable', 'false');
+    var defs = [
+      ['rowadd', '+ Row', 'Add row below', false],
+      ['coladd', '+ Col', 'Add column right', false],
+      ['rowdel', '\u2212 Row', 'Delete row', false],
+      ['coldel', '\u2212 Col', 'Delete column', false],
+      ['tbldel', '\u2715', 'Delete table', true]
+    ];
+    for (var i = 0; i < defs.length; i++){
+      (function(d){
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = d[1];
+        b.title = d[2];
+        if (d[3]) b.className = 'danger';
+        b.addEventListener('mousedown', function(e){ e.preventDefault(); });
+        b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); run(d[0]); });
+        bar.appendChild(b);
+      })(defs[i]);
+    }
+    document.body.appendChild(bar);
+  }
+  var tick = null;
+  function stopTick(){ if (tick){ clearInterval(tick); tick = null; } }
+  function startTick(){
+    if (tick) return;
+    tick = setInterval(function(){
+      if (bar && bar.style.display !== 'none' && state.table && state.table.isConnected) place(state.table);
+      else stopTick();
+    }, 350);
+  }
+  function hide(){
+    if (bar) bar.style.display = 'none';
+    state = { table:null, cell:null, ed:null };
+    stopTick();
+  }
+  function place(table){
+    if (!bar) return;
+    bar.style.display = 'flex';
+    var r = table.getBoundingClientRect();
+    var w = bar.offsetWidth, h = bar.offsetHeight;
+    var top = r.top - h - 6;
+    if (top < 6) top = r.bottom + 6;
+    var left = r.right - w;
+    if (left < 6) left = 6;
+    if (left + w > window.innerWidth - 6) left = window.innerWidth - w - 6;
+    bar.style.top = Math.round(top) + 'px';
+    bar.style.left = Math.round(left) + 'px';
+  }
+  function refresh(){
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount){ hide(); return; }
+    var node = sel.getRangeAt(0).startContainer;
+    var el = node.nodeType === 1 ? node : node.parentNode;
+    if (!el || !el.closest){ hide(); return; }
+    var cell = el.closest('td,th');
+    var table = (cell && cell.closest) ? cell.closest('table.blk-table') : null;
+    var ed = table ? editorFor(table) : null;
+    if (!table || !ed || !isVisible(table)){ hide(); return; }
+    state = { table:table, cell:cell, ed:ed };
+    build();
+    place(table);
+    startTick();
+    if (window.requestAnimationFrame) requestAnimationFrame(function(){ if (state.table) place(state.table); });
+  }
+  function caretTo(cell){
+    if (!cell) return;
+    try{
+      var r = document.createRange(); r.selectNodeContents(cell); r.collapse(false);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    }catch(e){}
+  }
+  function done(cell){
+    try{ seHistPush(state.ed); }catch(e){}
+    try{ scheduleSermonSave(); }catch(e){}
+    caretTo(cell);
+    refresh();
+  }
+  function run(action){
+    var t = state.table, cell = state.cell;
+    if (!t || !cell) return;
+    var ri = cell.parentNode.rowIndex;
+    var ci = cell.cellIndex;
+    var tb = t.tBodies[0] || t;
+    if (action === 'rowadd'){
+      var cols = t.rows[0].cells.length;
+      var nr = tb.insertRow(ri + 1);
+      for (var i = 0; i < cols; i++){ nr.insertCell().innerHTML = '<br>'; }
+      done(nr.cells[0]);
+    } else if (action === 'coladd'){
+      for (var a = 0; a < t.rows.length; a++){ t.rows[a].insertCell(ci + 1).innerHTML = '<br>'; }
+      done(t.rows[ri].cells[ci + 1]);
+    } else if (action === 'rowdel'){
+      if (t.rows.length <= 1) return;
+      t.deleteRow(ri);
+      var rw = t.rows[Math.min(ri, t.rows.length - 1)];
+      done(rw.cells[Math.min(ci, rw.cells.length - 1)]);
+    } else if (action === 'coldel'){
+      if (t.rows[0].cells.length <= 1) return;
+      for (var b2 = 0; b2 < t.rows.length; b2++){ t.rows[b2].deleteCell(ci); }
+      var rw2 = t.rows[ri];
+      done(rw2.cells[Math.min(ci, rw2.cells.length - 1)]);
+    } else if (action === 'tbldel'){
+      if (t.parentNode) t.parentNode.removeChild(t);
+      try{ seHistPush(state.ed); }catch(e){}
+      try{ scheduleSermonSave(); }catch(e){}
+      hide();
+    }
+  }
+  document.addEventListener('selectionchange', refresh);
+  document.addEventListener('scroll', refresh, true);
+  window.addEventListener('resize', refresh);
+  ['richEditor', 'sermonEditor'].forEach(function(id){
+    var ed = document.getElementById(id);
+    if (ed) ed.addEventListener('scroll', refresh, true);
+  });
+  ['richModal', 'sermonModal'].forEach(function(id){
+    var m = document.getElementById(id);
+    if (m && window.MutationObserver){
+      try{ new MutationObserver(refresh).observe(m, { attributes:true, attributeFilter:['class'] }); }catch(e){}
+    }
+  });
+})();
+</script>
+<script>
+/* ============================================================================
+   Mobile tool menu for the editors: categories + dropdown panels.
+   On phones the full inline toolbar is replaced by this compact one-row menu
+   (each chip opens a dropdown) to free up vertical space in the notes area.
+   PC keeps the full toolbar. Purely additive — reuses the existing commands
+   and buttons, and does not modify any existing editor code.
+   ============================================================================ */
+(function(){
+  function el(tag, cls, txt){ var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function keepSel(node){ node.addEventListener('mousedown', function(e){ e.preventDefault(); }); }
+
+  function build(cfg){
+    var modal = document.getElementById(cfg.modal); if (!modal) return;
+    var edEl = document.getElementById(cfg.ed); if (!edEl) return;
+    var editor = function(){ return document.getElementById(cfg.ed); };
+    function clickId(id){ var b = id && document.getElementById(id); if (b) b.click(); }
+    function clickIns(kind){ var b = modal.querySelector('.tbb[data-ins="' + kind + '"]'); if (b) b.click(); }
+    function fmt(cmd, val){ try{ execEditEl(editor(), cmd, false, val || null); }catch(e){} }
+
+    var wrap = el('div', 'tbmobwrap');
+    var bar = el('div', 'tbmob');
+    var panel = el('div', 'tbmobpanel'); panel.hidden = true;
+    wrap.appendChild(bar); wrap.appendChild(panel);
+    var openIdx = -1;
+
+    function closePanel(){
+      openIdx = -1; panel.hidden = true; panel.innerHTML = '';
+      Array.prototype.forEach.call(bar.children, function(c){ c.classList.remove('on'); });
+    }
+    function item(label, fn, opts){
+      opts = opts || {};
+      var b = el('button', 'tbmobitem'); b.type = 'button';
+      var s = el('span', null, label);
+      if (opts.b) s.style.fontWeight = '700';
+      if (opts.i) s.style.fontStyle = 'italic';
+      if (opts.u) s.style.textDecoration = 'underline';
+      if (opts.fam) s.style.fontFamily = opts.fam;
+      if (opts.title) b.title = opts.title;
+      b.appendChild(s);
+      keepSel(b);
+      b.addEventListener('click', function(e){ e.preventDefault(); try{ fn(); }catch(err){} closePanel(); });
+      return b;
+    }
+    function rowLabel(txt){ return el('div', 'tbmoblab', txt); }
+    function swatchRow(host, items, cmd){
+      var row = el('div', 'tbmobrow');
+      (items || []).forEach(function(it){
+        var b = el('button', 'tbs'); b.type = 'button'; b.title = it[1]; b.style.background = it[0];
+        keepSel(b);
+        b.addEventListener('click', function(e){ e.preventDefault(); fmt(cmd, it[0]); closePanel(); });
+        row.appendChild(b);
+      });
+      host.appendChild(row);
+    }
+
+    var CATS = [
+      { label:'Text', fill:function(p){
+          p.appendChild(item('B', function(){ fmt('bold'); }, { b:true, title:'Bold' }));
+          p.appendChild(item('I', function(){ fmt('italic'); }, { i:true, title:'Italic' }));
+          p.appendChild(item('U', function(){ fmt('underline'); }, { u:true, title:'Underline' }));
+      }},
+      { label:'Heading', fill:function(p){
+          p.appendChild(item('Heading 1', function(){ fmt('formatBlock', '<h1>'); }));
+          p.appendChild(item('Heading 2', function(){ fmt('formatBlock', '<h2>'); }));
+          p.appendChild(item('Heading 3', function(){ fmt('formatBlock', '<h3>'); }));
+          p.appendChild(item('Normal text', function(){ fmt('formatBlock', '<p>'); }));
+      }},
+      { label:'Blocks', fill:function(p){
+          p.appendChild(item('Callout', function(){ clickIns('callout'); }));
+          p.appendChild(item('Quote', function(){ clickIns('quote'); }));
+          p.appendChild(item('Divider', function(){ clickIns('divider'); }));
+          p.appendChild(item('Table', function(){ clickIns('table'); }));
+          if (cfg.toggle) p.appendChild(item('Toggle', function(){ clickId(cfg.toggle); }));
+      }},
+      { label:'Lists', fill:function(p){
+          p.appendChild(item('Bullet list', function(){ fmt('insertUnorderedList'); }));
+          p.appendChild(item('Numbered list', function(){ fmt('insertOrderedList'); }));
+      }},
+      { label:'Colour', fill:function(p){
+          p.appendChild(rowLabel('Text colour'));
+          var ti = el('input', 'tbmobcolor'); ti.type = 'color';
+          ti.addEventListener('input', function(){ fmt('foreColor', this.value); });
+          p.appendChild(ti);
+          swatchRow(p, window.TBTXT, 'foreColor');
+          p.appendChild(rowLabel('Highlight'));
+          var hi = el('input', 'tbmobcolor'); hi.type = 'color';
+          hi.addEventListener('input', function(){ fmt('hiliteColor', this.value); });
+          p.appendChild(hi);
+          swatchRow(p, window.TBHL, 'hiliteColor');
+      }},
+      { label:'Font', fill:function(p){
+          p.appendChild(rowLabel('Telugu fonts'));
+          [['Telugu Serif', "'NotoSerifX',serif"], ['Telugu Sans', "'NotoSansX',sans-serif"], ['Gidugu', "'GiduguX',serif"], ['Suravaram', "'SuravaramX',serif"], ['Ramaraja', "'RamarajaX',serif"]].forEach(function(fa){
+            p.appendChild(item(fa[0], function(){ fmt('fontName', fa[1]); }, { fam: fa[1] }));
+          });
+          p.appendChild(rowLabel('Other fonts'));
+          [['Georgia', 'Georgia,serif'], ['Times', "'Times New Roman',serif"], ['Arial', 'Arial,Helvetica,sans-serif'], ['Mono', "'Courier New',monospace"]].forEach(function(fa){
+            p.appendChild(item(fa[0], function(){ fmt('fontName', fa[1]); }, { fam: fa[1] }));
+          });
+      }},
+      { label:'More', fill:function(p){
+          p.appendChild(item('Bible reference', function(){ clickId(cfg.xref); }));
+          if (cfg.undo) p.appendChild(item('Undo', function(){ clickId(cfg.undo); }));
+          if (cfg.redo) p.appendChild(item('Redo', function(){ clickId(cfg.redo); }));
+          p.appendChild(item('Clear formatting', function(){ fmt('removeFormat'); }));
+      }}
+    ];
+
+    CATS.forEach(function(cat, i){
+      var chip = el('button', 'tbmobcat'); chip.type = 'button';
+      chip.appendChild(el('span', null, cat.label));
+      keepSel(chip);
+      chip.addEventListener('click', function(e){
+        e.preventDefault();
+        if (openIdx === i){ closePanel(); return; }
+        openIdx = i;
+        panel.innerHTML = '';
+        cat.fill(panel);
+        panel.hidden = false;
+        Array.prototype.forEach.call(bar.children, function(c, j){ c.classList.toggle('on', j === i); });
+      });
+      bar.appendChild(chip);
+    });
+
+    document.addEventListener('click', function(e){
+      if (panel.hidden) return;
+      if (!wrap.contains(e.target)) closePanel();
+    });
+    if (edEl.parentNode) edEl.parentNode.insertBefore(wrap, edEl);
+  }
+
+  build({ modal:'richModal',   ed:'richEditor',   xref:'tbXref',     undo:null,         redo:null,         font:null,       toggle:null });
+  build({ modal:'sermonModal', ed:'sermonEditor', xref:'sermonXref', undo:'sermonUndo', redo:'sermonRedo', font:'sermonFont', toggle:'sermonToggle' });
+  /* commentary editor: font picker in its desktop toolbar */
+  var rf = document.getElementById('richFont');
+  if (rf) rf.onchange = function(){ if (this.value){ try{ execEditEl(document.getElementById('richEditor'), 'fontName', false, this.value); }catch(e){} } this.selectedIndex = 0; };
+
+  /* verse-edit box: grow to fit the verse text, never leave a big empty box */
+  var veT = document.getElementById('veText');
+  if (veT){
+    var veGrow = function(){
+      veT.style.height = 'auto';
+      veT.style.height = Math.max(66, Math.min(Math.round(window.innerHeight * 0.46), veT.scrollHeight)) + 'px';
+    };
+    veT.addEventListener('input', veGrow);
+    var veSheet = document.getElementById('veSheet');
+    if (veSheet && window.MutationObserver){
+      try{ new MutationObserver(function(){ if (veSheet.classList.contains('open')) setTimeout(veGrow, 0); }).observe(veSheet, {attributes:true, attributeFilter:['class']}); }catch(e){}
+    }
+    window.addEventListener('resize', veGrow);
+  }
+})();
 </script>
 </body>
 </html>
