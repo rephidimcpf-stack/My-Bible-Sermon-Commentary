@@ -1494,7 +1494,7 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
   <h3>Sync between devices (phone ⇄ PC)</h3>
   <p>The app keeps everything on the device itself and never sends your data anywhere. To move it, use files: on one device tap <b>Backup</b> (or <b>Save a backup file</b>) and save the JSON into a cloud folder you already use — Google Drive, OneDrive, Dropbox. On the other device, open the app and <b>Restore</b> that file. Do this each time you switch, keeping the newest file as your master. Once you have used a backup file, <b>↻ Re-open last backup</b> reads that same file again in one tap — handy when it lives in a synced folder and changes on the other device.</p>
   <h3>Sermons on other devices</h3>
-  <p>Each sermon can travel on its own. In the sermon editor tap <b>⤓ Export</b> to save it as a file named after its <b>Series - Title</b>; keep those files in a cloud folder to carry a single sermon between phone and PC. In the Sermons tab, <b>Back up</b> writes one <b>Series - Title</b> file per sermon (plus a combined file) into your chosen folder, and <b>Import</b> reads either a single sermon file or a whole library.</p>
+  <p>Each sermon can travel on its own. In the sermon editor tap <b>⤓ Export</b> to save it as a file named after its <b>Series - Title</b>; keep those files in a cloud folder to carry a single sermon between phone and PC. In the Sermons tab, <b>Import</b> reads a single sermon file or a whole library.</p>
   <h3>Sermon series</h3>
   <p>In a sermon, choose the <b>Book</b> and type the chapter in <b>Reference</b> — the app then offers a code for each series (e.g. CO-1000, CS-1000, SER-1000 for John 3) as buttons under the Series box. Add or remove series in <b>Settings → Sermon series</b>.</p>
   <h3>Commentary import file format</h3>
@@ -1713,11 +1713,9 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
   <div id="sermonEmpty" class="empty">No sermons yet<br>Tap ＋ New to create one</div>
   <div class="sermon-bak">
     <div class="sb-actions">
-      <button class="btn ghost" id="sermonBakNow" title="Save a sermons backup file">⤓ Back up</button>
       <button class="btn ghost" id="sermonImport" title="Import sermons from a backup file">⤒ Import</button>
       <input type="file" id="sermonImportFile" accept=".json,application/json" hidden>
     </div>
-    <div class="sb-status" id="sermonBakStatus"></div>
   </div>
 </div>
 
@@ -4679,6 +4677,12 @@ function collectSermon(){
   sermonCur.title = $('sTitle').value.trim();
   sermonCur.book = $('sBook').value === '' ? '' : parseInt($('sBook').value, 10);
   sermonCur.reference = $('sRef').value.trim();
+  /* A pinned sermon follows its reference: chapter only ("1") pins above the
+     chapter, a verse ("1:10") pins above that verse. */
+  if (sermonCur.pin){
+    var pv = sermonVerse(sermonCur);
+    if (pv) sermonCur.pin = pv.bi + '|' + pv.ch + '|' + pv.v;
+  }
   sermonCur.category = $('sCategory').value.trim();
   sermonCur.body = $('sermonEditor').innerHTML;
   sermonCur.updated = Date.now();
@@ -4761,16 +4765,20 @@ function sermonFileBase(s){
 function sermonFilePayload(s){ return {app: 'my-bible-sermon', version: 1, savedAt: new Date().toISOString(), sermon: s}; }
 function exportSermonFile(s){
   if (!s) return;
-  var name = sermonFileBase(s) + '.json';
-  try{ return saveBackupWithChoice(sermonFilePayload(s), name, s.title || 'sermon'); }
+  var base = sermonFileBase(s);          /* "Series - Title" */
+  var name = base + '.json';
+  /* Give the same "Series - Title" as the share title, so the phone's share
+     sheet offers that name when you keep the file — not just the title. */
+  try{ return saveBackupWithChoice(sermonFilePayload(s), name, base); }
   catch(e){ toast('Could not export'); }
 }
 async function loadSermonDir(){ try{ var h = await metaGet('sermonDir'); if (h) sermonDir = h; }catch(e){} renderSermonBakStatus(); }
 function renderSermonBakStatus(){
   var el = $('sermonBakStatus'); if (!el) return;
   var parts = [sermons.length + (sermons.length === 1 ? ' sermon' : ' sermons')];
+  if (sermonDir && sermonDir.name) parts.push('Folder: ' + sermonDir.name);
   var ts = getNum('tbb_sermonbak_ts_v1');
-  parts.push(ts ? ('Last backup ' + ago(ts)) : 'Back up saves a file you can keep or move');
+  parts.push(ts ? ('Last backup ' + ago(ts)) : (sermonDir && sermonDir.name ? 'Tap Back up to save' : 'Back up saves a file you can keep or move'));
   el.textContent = parts.join('  ·  ');
 }
 async function sermonWriteToDir(){
@@ -4814,8 +4822,48 @@ async function chooseSermonFolder(){
   }catch(e){ if (e && e.name === 'AbortError') return; toast('Could not set folder'); }
 }
 async function backupSermonsNow(){
-  var ok = await sermonWriteToDir();
-  if (ok){ toast('Sermons backed up'); renderSermonBakStatus(); return; }
+  /* On a browser that can write to a folder, ask where to save the first time
+     and remember it; every sermon is written there as "Series - Title". */
+  if (!sermonDir && window.showDirectoryPicker){
+    try{
+      var picked = await window.showDirectoryPicker({mode: 'readwrite'});
+      sermonDir = picked;
+      try{ await metaSet('sermonDir', picked); }catch(e){}
+      settings.lastSermonDir = picked.name || ''; save(LS.set, settings);
+    }catch(e){ /* cancelled — carry on to the download/share path */ }
+  }
+  /* Only go near the folder when one is set — on a phone this keeps the tap's
+     "user gesture" alive so the browser is willing to open the share sheet. */
+  if (sermonDir){
+    var ok = false;
+    try{ ok = await sermonWriteToDir(); }catch(e){}
+    if (ok){ toast('Sermons backed up'); renderSermonBakStatus(); return; }
+  }
+  var combined = JSON.stringify(sermonBackupData(), null, 1);
+  /* One "Series - Title" file per sermon, plus the combined backup file. */
+  var files = [], used = {};
+  sermons.forEach(function(s){
+    if (!s) return;
+    var base = sermonFileBase(s);
+    if (used[base]) base = base + ' (' + (++used[base]) + ')'; else used[base] = 1;
+    try{ files.push(new File([JSON.stringify(sermonFilePayload(s), null, 1)], base + '.json', {type: 'application/json'})); }catch(e){}
+  });
+  try{ files.push(new File([combined], 'sermons-backup.json', {type: 'application/json'})); }catch(e){}
+  var canShare = false;
+  try{ canShare = !!(files.length && navigator.share && navigator.canShare && navigator.canShare({files: files})); }catch(e){ canShare = false; }
+  if (canShare){
+    var cancelled = false, failed = false;
+    try{ await navigator.share({files: files, title: 'Sermons backup'}); }
+    catch(e){ if (e && e.name === 'AbortError') cancelled = true; else failed = true; }
+    if (cancelled) return;
+    if (!failed){
+      setNum('tbb_sermonbak_ts_v1', Date.now()); renderSermonBakStatus();
+      toast('Sermons backed up');
+      return;
+    }
+  }
+  /* Sharing is unavailable or refused (some browsers cap how many files can be
+     shared at once) — fall back to saving the combined file, never an error. */
   try{
     await saveBackupWithChoice(sermonBackupData(), 'sermons-backup.json', 'My Bible — sermons backup');
     setNum('tbb_sermonbak_ts_v1', Date.now()); renderSermonBakStatus();
@@ -4961,6 +5009,7 @@ function renderSermons(){
   if ($('sermonSort')) $('sermonSort').onchange = renderSermons;
   if ($('sermonGroup')) $('sermonGroup').onclick = function(){ this.classList.toggle('on'); renderSermons(); };
   if ($('sermonPickDir')) $('sermonPickDir').onclick = chooseSermonFolder;
+  if ($('sermonPickDir') && !window.showDirectoryPicker) $('sermonPickDir').style.display = 'none';
   if ($('sermonBakNow')) $('sermonBakNow').onclick = backupSermonsNow;
   if ($('sermonImport')) $('sermonImport').onclick = function(){ if ($('sermonImportFile')) $('sermonImportFile').click(); };
   if ($('sermonExport')) $('sermonExport').onclick = function(){ try{ exportSermonFile(collectSermon() || sermonCur); }catch(e){} };
