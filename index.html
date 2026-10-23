@@ -460,6 +460,7 @@ html[data-theme="dark"] .dtable td.ser,html[data-theme="night"] .dtable td.ser,h
 .sermon-title{width:100%;border:none;border-bottom:1px solid var(--line);background:none;color:var(--text);font-family:var(--sans);font-size:20px;font-weight:700;padding:6px 2px;margin-bottom:12px;outline:none}
 .sermon-title:focus{border-color:var(--accent)}
 .sermon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+#seriesPicks{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
 .sf{display:flex;flex-direction:column;gap:3px;font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:600}
 .sf input,.sf select{padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font-family:var(--sans);font-size:14px;min-width:0;outline:none}
 .sf input:focus,.sf select:focus{border-color:var(--accent)}
@@ -1442,6 +1443,15 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
    </div>
   </div>
   <div class="setgroup">
+   <h3>Sermon series</h3>
+   <p class="help" style="font-family:var(--sans);font-size:14.5px;line-height:1.8;margin:0 0 10px">Each series gets a code for every Bible chapter — CO-0001 … CO-1189. Tap a chip to remove it, or add a new prefix below. A button for every series then appears in the sermon editor.</p>
+   <div id="seriesMgmt" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+   <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
+    <input id="newSeriesInput" placeholder="New prefix, e.g. NT" autocomplete="off" style="flex:1;min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;font-family:var(--sans);font-size:15px;background:var(--bg);color:var(--text)">
+    <button class="btn" id="newSeriesAdd" style="min-height:auto;padding:11px 16px">Add series</button>
+   </div>
+  </div>
+  <div class="setgroup">
   <h3>Backup / Restore</h3>
    <p class="help" style="font-family:var(--sans);font-size:14.5px;line-height:1.8;margin:0 0 10px">All your Bible changes — commentary, notes, favorites, labels, highlights, word comments, verse edits and settings — in one JSON file. Sermons are backed up separately from the Sermon Library. When you press <b>Backup</b> you choose where to save it.</p>
    <div class="row">
@@ -1485,6 +1495,8 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
   <p>The app keeps everything on the device itself and never sends your data anywhere. To move it, use files: on one device tap <b>Backup</b> (or <b>Save a backup file</b>) and save the JSON into a cloud folder you already use — Google Drive, OneDrive, Dropbox. On the other device, open the app and <b>Restore</b> that file. Do this each time you switch, keeping the newest file as your master. Once you have used a backup file, <b>↻ Re-open last backup</b> reads that same file again in one tap — handy when it lives in a synced folder and changes on the other device.</p>
   <h3>Sermons on other devices</h3>
   <p>Each sermon can travel on its own. In the sermon editor tap <b>⤓ Export</b> to save it as a file named after its <b>Series - Title</b>; keep those files in a cloud folder to carry a single sermon between phone and PC. In the Sermons tab, <b>Back up</b> writes one <b>Series - Title</b> file per sermon (plus a combined file) into your chosen folder, and <b>Import</b> reads either a single sermon file or a whole library.</p>
+  <h3>Sermon series</h3>
+  <p>In a sermon, choose the <b>Book</b> and type the chapter in <b>Reference</b> — the app then offers a code for each series (e.g. CO-1000, CS-1000, SER-1000 for John 3) as buttons under the Series box. Add or remove series in <b>Settings → Sermon series</b>.</p>
   <h3>Commentary import file format</h3>
   <pre style="white-space:pre-wrap;background:var(--surface2);padding:12px;border-radius:10px;font-size:13px">{
  "John 3:16": "The key verse about God's love.",
@@ -1719,11 +1731,14 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
     <div class="rmodal-body">
       <input id="sTitle" class="sermon-title" placeholder="Title" autocomplete="off">
       <div class="sermon-grid">
-        <label class="sf">Series<input id="sSeries" placeholder="e.g. Grace" autocomplete="off"></label>
+        <label class="sf">Series<input id="sSeries" list="seriesList" placeholder="e.g. Grace" autocomplete="off"></label>
         <label class="sf">Book<select id="sBook"></select></label>
         <label class="sf">Reference<input id="sRef" placeholder="e.g. 3:16" autocomplete="off"></label>
-        <label class="sf">Category<input id="sCategory" placeholder="e.g. Teaching" autocomplete="off"></label>
+        <label class="sf">Category<input id="sCategory" list="catList" placeholder="e.g. Teaching" autocomplete="off"></label>
       </div>
+      <datalist id="seriesList"></datalist>
+      <datalist id="catList"></datalist>
+      <div id="seriesPicks" class="seriespicks"></div>
       <div class="tb">
         <button class="tbb" type="button" data-cmd="bold" title="Bold"><b>B</b></button>
         <button class="tbb" type="button" data-cmd="italic" title="Italic"><i>I</i></button>
@@ -1856,6 +1871,7 @@ function applySettings(){
 }
 /* ---------- settings UI ---------- */
 function buildSettingsUI(){
+  try{ renderSeriesMgmt(); }catch(e){}
   var sw=$('themeSw'); sw.innerHTML='';
   THEMES.forEach(function(t){
     var b=document.createElement('button'); b.className='sw'+(settings.theme===t[0]?' on':'');
@@ -3307,7 +3323,8 @@ function snapshotPayload(){
   /* Bible annotations only — sermons have their own backup in the Sermon Library */
   return {app: 'naveen-bible-commentary', version: 2, savedAt: new Date().toISOString(),
     notes: notes, marks: marks, labels: labels, highlights: highlights,
-    whl: whl, wh: wh, wn: wn, vedits: vedits, settings: settings, recent: recent};
+    whl: whl, wh: wh, wn: wn, vedits: vedits, settings: settings, recent: recent,
+    series: CHAPTER_SERIES};
 }
 function backupPayload(){ var p = snapshotPayload(); p.version = 2; return p; }
 function applyBackupFull(obj, opts){
@@ -3346,6 +3363,12 @@ function applyBackupFull(obj, opts){
   save('tbb_hl_v1', highlights); save('tbb_whl_v1', whl); save('tbb_whl2_v1', wh);
   save('tbb_wnotes_v1', wn); save('tbb_vedit_v1', vedits);
   if (Array.isArray(obj.sermons)) save('tbb_sermons_v1', sermons);
+  if (Array.isArray(obj.series) && obj.series.length){
+    CHAPTER_SERIES.length = 0;
+    obj.series.forEach(function(p){ var q = cleanPrefix(p); if (q && CHAPTER_SERIES.indexOf(q) < 0) CHAPTER_SERIES.push(q); });
+    saveSeriesPrefixes();
+    try{ renderSeriesMgmt(); renderSeriesPicks(); }catch(e){}
+  }
   save(LS.set, settings);
   try{ applySettings(); whRebuild(); wnRebuild(); }catch(e){}
   try{ renderNotes(); renderMarks(); renderLabels(); }catch(e){}
@@ -3847,6 +3870,147 @@ if (!Array.isArray(sermons)) sermons = [];
 try{ if (typeof S !== 'undefined' && S && S.view === 'read' && typeof openChapter === 'function'){ openChapter(S.bi, S.ch); } }catch(e){}
 var sermonCur = null;
 function saveSermons(){ save('tbb_sermons_v1', sermons); }
+/* ---- Series codes come from the Bible chapter ---------------------------
+   Each series holds one code per Bible chapter (1..1189). Pick a book and type
+   the chapter in Reference (e.g. John 3:16) and the Series box offers a code for
+   every series - CO-0043, CS-0043, SER-0043 - as buttons you can tap. The
+   chapter counts come straight from the app's own Bible, so they always match
+   what you read. Add or remove series in Settings, or with the + button in the
+   sermon editor - no code needed.                                          */
+var SERIES_KEY = 'tbb_series_v1';
+var CHAPTER_SERIES = (function(){
+  var v = null; try{ v = load(SERIES_KEY, null); }catch(e){}
+  if (!Array.isArray(v) || !v.length) v = ['CO', 'CS', 'SER'];
+  var out = [];
+  v.forEach(function(p){ p = String(p || '').toUpperCase().replace(/[^A-Z]/g, ''); if (p && out.indexOf(p) < 0) out.push(p); });
+  return out.length ? out : ['CO', 'CS', 'SER'];
+})();
+function cleanPrefix(p){ return String(p || '').toUpperCase().replace(/[^A-Z]/g, ''); }
+function saveSeriesPrefixes(){ try{ save(SERIES_KEY, CHAPTER_SERIES); }catch(e){} }
+function addSeriesPrefix(p){
+  p = cleanPrefix(p);
+  if (!p || CHAPTER_SERIES.indexOf(p) >= 0) return '';
+  CHAPTER_SERIES.push(p);
+  saveSeriesPrefixes();
+  return p;
+}
+function removeSeriesPrefix(p){
+  p = cleanPrefix(p);
+  var i = CHAPTER_SERIES.indexOf(p);
+  if (i < 0) return false;
+  CHAPTER_SERIES.splice(i, 1);
+  saveSeriesPrefixes();
+  return true;
+}
+function pad4(n){ n = String(n); while (n.length < 4) n = '0' + n; return n; }
+function chapterNumber(bi, chapter){
+  if (typeof BOOKS === 'undefined' || !BOOKS) return null;
+  if (isNaN(bi) || bi < 0 || bi >= BOOKS.length) return null;
+  var ch = parseInt(chapter, 10);
+  if (isNaN(ch) || ch < 1 || ch > BOOKS[bi].c.length) return null;
+  var off = 0; for (var i = 0; i < bi; i++) off += BOOKS[i].c.length;
+  return off + ch;
+}
+function currentChapterNumber(){
+  var bv = $('sBook') ? $('sBook').value : '';
+  if (bv === '' || bv == null) return null;
+  var ref = $('sRef') ? String($('sRef').value || '') : '';
+  var mm = ref.match(/(\d+)/);
+  if (!mm) return null;
+  return chapterNumber(parseInt(bv, 10), mm[1]);
+}
+/* If the Series box is empty, or already holds one of these codes, keep it in
+   step with the chosen chapter. A name you typed yourself is never touched. */
+function applyChapterSeries(){
+  var el = $('sSeries'); if (!el) return;
+  var n = currentChapterNumber();
+  if (!n) return;
+  var cur = String(el.value || '').trim().toUpperCase();
+  var m = /^([A-Z]+)-\d+$/.exec(cur);
+  var onSeries = m && CHAPTER_SERIES.indexOf(m[1]) >= 0;
+  if (cur === ''){ el.value = CHAPTER_SERIES[0] + '-' + pad4(n); try{ scheduleSermonSave(); }catch(e){} }
+  else if (onSeries){ el.value = m[1] + '-' + pad4(n); try{ scheduleSermonSave(); }catch(e){} }
+}
+/* One tappable button per series for the chosen chapter. */
+function seriesChipStyle(sel){
+  return 'padding:7px 12px;border-radius:999px;border:1px solid var(--line);' +
+    'font-family:var(--sans);font-size:13px;cursor:pointer;' +
+    (sel ? 'background:var(--accent);color:#fff;' : 'background:var(--surface2);color:var(--text);');
+}
+function renderSeriesPicks(){
+  var wrap = $('seriesPicks'); if (!wrap) return;
+  wrap.innerHTML = '';
+  var n = currentChapterNumber();
+  var cur = $('sSeries') ? String($('sSeries').value || '').trim().toUpperCase() : '';
+  if (n){
+    CHAPTER_SERIES.forEach(function(p){
+      var code = p + '-' + pad4(n);
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = code;
+      b.style.cssText = seriesChipStyle(code === cur);
+      b.onclick = function(){
+        var el = $('sSeries'); if (!el) return;
+        el.value = code;
+        try{ scheduleSermonSave(); }catch(e){}
+        renderSeriesPicks();
+      };
+      wrap.appendChild(b);
+    });
+  }
+  var add = document.createElement('button');
+  add.type = 'button';
+  add.textContent = '＋';
+  add.title = 'Add a new series';
+  add.style.cssText = 'padding:7px 12px;border-radius:999px;border:1px dashed var(--line);' +
+    'font-family:var(--sans);font-size:13px;cursor:pointer;background:transparent;color:var(--muted);';
+  add.onclick = function(){ promptNewSeries(); };
+  wrap.appendChild(add);
+  wrap.style.display = '';
+}
+function promptNewSeries(){
+  var p = window.prompt('New series prefix (letters only), e.g. NT');
+  if (p === null) return;
+  var added = addSeriesPrefix(p);
+  if (added){
+    var n = currentChapterNumber();
+    var el = $('sSeries');
+    if (n && el){ el.value = added + '-' + pad4(n); try{ scheduleSermonSave(); }catch(e){} }
+    toast('Series ' + added + ' added');
+    try{ renderSeriesMgmt(); }catch(e){}
+  } else if (cleanPrefix(p)){
+    toast('That series already exists');
+  } else {
+    toast('Use letters only, e.g. NT');
+  }
+  renderSeriesPicks();
+}
+function renderSeriesMgmt(){
+  var wrap = $('seriesMgmt'); if (!wrap) return;
+  wrap.innerHTML = '';
+  CHAPTER_SERIES.forEach(function(p){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = p + ' ✕';
+    b.title = 'Remove ' + p;
+    b.style.cssText = 'padding:7px 12px;border-radius:999px;border:1px solid var(--line);' +
+      'font-family:var(--sans);font-size:13px;cursor:pointer;background:var(--surface2);color:var(--text);';
+    b.onclick = function(){
+      if (!window.confirm('Remove series ' + p + '?')) return;
+      removeSeriesPrefix(p);
+      renderSeriesMgmt();
+      try{ renderSeriesPicks(); }catch(e){}
+      toast('Removed ' + p);
+    };
+    wrap.appendChild(b);
+  });
+  if (!CHAPTER_SERIES.length){
+    var sp = document.createElement('span');
+    sp.style.cssText = 'font-family:var(--sans);font-size:13px;color:var(--muted)';
+    sp.textContent = 'No series yet — add one below.';
+    wrap.appendChild(sp);
+  }
+}
 function bookName(i){ i = parseInt(i, 10); return (i >= 0 && i < BOOKS.length) ? (BOOKS[i].e || BOOKS[i].t) : ''; }
 function sermonVerse(s){
   if (!s) return null;
@@ -4209,6 +4373,7 @@ function seHistSchedule(ed){
   seHist.timer = setTimeout(function(){ seHistPush(ed); }, 350);
 }
 function fillSermonForm(s, isNew){
+  try{ fillSermonFilterOptions(); }catch(e){}
   $('sermonHead').textContent = isNew ? 'New sermon' : (s.title || 'Sermon');
   $('sermonSub').textContent = isNew ? '' : ((bookName(s.book) || '') + (s.reference ? (' ' + s.reference) : ''));
   $('sTitle').value = s.title || '';
@@ -4225,6 +4390,7 @@ function fillSermonForm(s, isNew){
   try{ var ss = $('sermonSaveState'); if (ss){ ss.textContent = ''; ss.className = 'svstate'; } }catch(e){}
   $('sermonDel').style.display = isNew ? 'none' : '';
   updatePinBtn();
+  try{ renderSeriesPicks(); }catch(e){}
   $('sermonModal').classList.add('open');
   setTimeout(function(){ try{ ed.focus(); }catch(e){} }, 160);
 }
@@ -4681,6 +4847,15 @@ function importSermonsFile(file){
 function sermonSeriesKey(s){ return (s && s.series ? String(s.series).trim() : ''); }
 function sermonCatKey(s){ return (s && s.category ? String(s.category).trim() : ''); }
 function sermonBookNum(s){ var b = s && s.book; if (b === '' || b == null || isNaN(parseInt(b, 10))) return -1; return parseInt(b, 10); }
+function fillSuggestList(id, set){
+  var dl = document.getElementById(id); if (!dl) return;
+  var vals = Object.keys(set).sort(function(a, b){ return a.localeCompare(b); });
+  var sig = vals.join('\u0000');
+  if (dl.getAttribute('data-vals') === sig) return;
+  dl.setAttribute('data-vals', sig);
+  dl.innerHTML = '';
+  vals.forEach(function(k){ var o = document.createElement('option'); o.value = k; dl.appendChild(o); });
+}
 function fillSermonFilterOptions(){
   var ss = $('sermonFSeries'), cs = $('sermonFCat'), bs = $('sermonFBook');
   if (!ss && !cs && !bs) return;
@@ -4701,6 +4876,8 @@ function fillSermonFilterOptions(){
   fill(ss, 'All series', Object.keys(seriesSet).sort(function(a, b){ return a.localeCompare(b); }).map(function(k){ return { value: k, label: k }; }));
   fill(cs, 'All categories', Object.keys(catSet).sort(function(a, b){ return a.localeCompare(b); }).map(function(k){ return { value: k, label: k }; }));
   fill(bs, 'All books', Object.keys(bookSet).map(function(k){ return parseInt(k, 10); }).sort(function(a, b){ return a - b; }).map(function(bi){ return { value: String(bi), label: bookName(bi) }; }));
+  fillSuggestList('seriesList', seriesSet);
+  fillSuggestList('catList', catSet);
 }
 function sermonSortCmp(mode){
   function coll(a, b){ return String(a).localeCompare(String(b)); }
@@ -4788,8 +4965,22 @@ function renderSermons(){
   if ($('sermonImport')) $('sermonImport').onclick = function(){ if ($('sermonImportFile')) $('sermonImportFile').click(); };
   if ($('sermonExport')) $('sermonExport').onclick = function(){ try{ exportSermonFile(collectSermon() || sermonCur); }catch(e){} };
   ['sTitle','sSeries','sRef','sCategory'].forEach(function(id){ var el = $(id); if (el) el.addEventListener('input', scheduleSermonSave); });
-  if ($('sBook')) $('sBook').addEventListener('change', scheduleSermonSave);
+  if ($('sBook')) $('sBook').addEventListener('change', function(){ scheduleSermonSave(); try{ applyChapterSeries(); renderSeriesPicks(); }catch(e){} });
+  if ($('sRef')) $('sRef').addEventListener('input', function(){ try{ applyChapterSeries(); renderSeriesPicks(); }catch(e){} });
+  if ($('sSeries')) $('sSeries').addEventListener('input', function(){ try{ renderSeriesPicks(); }catch(e){} });
   if ($('sermonImportFile')) $('sermonImportFile').onchange = function(){ if (this.files && this.files[0]) importSermonsFile(this.files[0]); this.value = ''; };
+  if ($('newSeriesAdd')) $('newSeriesAdd').onclick = function(){
+    var el = $('newSeriesInput');
+    var added = addSeriesPrefix(el ? el.value : '');
+    if (added){ if (el) el.value = ''; toast('Series ' + added + ' added'); }
+    else toast('Type a new prefix (letters only)');
+    renderSeriesMgmt();
+    try{ renderSeriesPicks(); }catch(e){}
+  };
+  if ($('newSeriesInput')) $('newSeriesInput').addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); if ($('newSeriesAdd')) $('newSeriesAdd').click(); }
+  });
+  try{ renderSeriesMgmt(); }catch(e){}
   try{ loadSermonDir(); }catch(e){}
   var sm = $('sermonModal'); if (sm) sm.addEventListener('click', function(e){ if (e.target === this) closeSermonSaving(); });
   document.querySelectorAll('#sermonModal .tbb').forEach(function(b){
