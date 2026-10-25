@@ -1811,6 +1811,7 @@ button.veditbtn{width:26px;height:26px;font-size:13px;border-radius:7px}
         <button class="btn ghost svfs" id="svFontMinus" title="Smaller text">A−</button>
         <button class="btn ghost svfs" id="svFontPlus" title="Larger text">A+</button>
         <button class="btn ghost" id="svPresent" title="Hide chrome for preaching">🎙 Present</button>
+        <button class="btn ghost" id="svUnpin" title="Remove this pin from the verse" style="display:none">📌 Unpin</button>
       </div>
       <button class="btn ghost" id="svClose2">Close</button>
       <button class="btn" id="svEdit">✎ Edit</button>
@@ -3867,7 +3868,62 @@ if (!Array.isArray(sermons)) sermons = [];
    chapter we are already showing so pins appear immediately on load. */
 try{ if (typeof S !== 'undefined' && S && S.view === 'read' && typeof openChapter === 'function'){ openChapter(S.bi, S.ch); } }catch(e){}
 var sermonCur = null;
-function saveSermons(){ save('tbb_sermons_v1', sermons); }
+/* ---- pins that outlive the sermon library -------------------------------
+   A sermon pinned above a verse is also kept in its own small store. The pin
+   therefore stays on the verse even after the sermon is deleted from the
+   library: the link, the reader and the present view all still work. Editing
+   a deleted sermon puts it back into the library. Unpin removes the copy. */
+var PINS_KEY = 'tbb_sermonpins_v1';
+var sermonPins = load(PINS_KEY, []);
+if (!Array.isArray(sermonPins)) sermonPins = [];
+function saveSermonPins(){ save(PINS_KEY, sermonPins); }
+function pinCopyOf(s){
+  return { id: s.id, series: s.series || '', title: s.title || '',
+           book: s.book, reference: s.reference || '', category: s.category || '',
+           body: s.body || '', pin: s.pin,
+           created: s.created || 0, updated: s.updated || 0,
+           pinnedAt: (pinSnapshot(s.id) && pinSnapshot(s.id).pinnedAt) || Date.now() };
+}
+function pinSnapshot(id){
+  if (!Array.isArray(sermonPins)) return null;
+  for (var i = 0; i < sermonPins.length; i++){
+    if (sermonPins[i] && sermonPins[i].id === id) return sermonPins[i];
+  }
+  return null;
+}
+/* Every pinned sermon in the library refreshes its own copy; a sermon that is
+   no longer pinned drops its copy. Copies of deleted sermons are left alone. */
+function syncSermonPins(){
+  try{
+    if (!Array.isArray(sermonPins)) sermonPins = [];
+    sermons.forEach(function(s){
+      if (!s || !s.id) return;
+      var i = -1;
+      for (var j = 0; j < sermonPins.length; j++){
+        if (sermonPins[j] && sermonPins[j].id === s.id){ i = j; break; }
+      }
+      if (s.pin){
+        var c = pinCopyOf(s);
+        if (i >= 0) sermonPins[i] = c; else sermonPins.push(c);
+      } else if (i >= 0){
+        sermonPins.splice(i, 1);
+      }
+    });
+    saveSermonPins();
+  }catch(e){}
+}
+function saveSermons(){ save('tbb_sermons_v1', sermons); syncSermonPins(); }
+/* the library first, then the saved pin of a sermon that was deleted */
+function sermonById(id){
+  var s = null;
+  try{ s = sermons.filter(function(x){ return x && x.id === id; })[0]; }catch(e){}
+  return s || pinSnapshot(id);
+}
+function sermonInLibrary(id){
+  try{ return sermons.some(function(x){ return x && x.id === id; }); }catch(e){ return false; }
+}
+/* keep the stored copies of already-pinned sermons up to date on load */
+try{ syncSermonPins(); }catch(e){}
 /* ---- Series codes come from the Bible chapter ---------------------------
    Each series holds one code per Bible chapter (1..1189). Pick a book and type
    the chapter in Reference (e.g. John 3:16) and the Series box offers a code for
@@ -4020,9 +4076,27 @@ function sermonVerse(s){
   return {bi: bi, ch: ch, v: v};
 }
 function sermonsForVerse(bi, ch, v){
-  if (!Array.isArray(sermons) || !sermons.length) return [];
-  var key = bi + '|' + ch + '|' + v;
-  return sermons.filter(function(s){ return s.pin === key; });
+  var key = bi + '|' + ch + '|' + v, out = [];
+  try{
+    if (Array.isArray(sermons)) sermons.forEach(function(s){ if (s && s.pin === key) out.push(s); });
+  }catch(e){}
+  /* pins of sermons deleted from the library still sit above the verse */
+  try{
+    if (Array.isArray(sermonPins)) sermonPins.forEach(function(p){
+      if (!p || p.pin !== key) return;
+      if (sermonInLibrary(p.id)) return;
+      out.push(p);
+    });
+  }catch(e){}
+  return out;
+}
+function sermonLabel(s){
+  if (!s) return 'Sermon';
+  if (s.series && s.title) return s.series + ' — ' + s.title;
+  if (s.series) return s.series;
+  if (s.title) return s.title;
+  var ref = ((bookName(s.book) || '') + (s.reference ? ((bookName(s.book) ? ' ' : '') + s.reference) : '')).trim();
+  return ref || 'Sermon';
 }
 function sermonLinkEl(bi, ch, v){
   try{
@@ -4030,7 +4104,7 @@ function sermonLinkEl(bi, ch, v){
     var wrap = document.createElement('div'); wrap.className = 'vsermlink';
     list.forEach(function(s){
       var b = document.createElement('button'); b.type = 'button'; b.className = 'sermlink';
-      b.innerHTML = '📌 ' + esc(s.series ? (s.series + ' — ' + s.title) : (s.title || 'Sermon'));
+      b.innerHTML = '📌 ' + esc(sermonLabel(s));
       b.title = 'Read sermon';
       b.onclick = function(e){ e.stopPropagation(); openSermonView(s.id); };
       wrap.appendChild(b);
@@ -4564,7 +4638,7 @@ function returnToSermon(){
 }
 function openSermonView(id, opts){
   opts = opts || {};
-  var s = sermons.filter(function(x){ return x.id === id; })[0];
+  var s = sermonById(id);
   if (!s) return;
   try{ hideSvBackBar(); }catch(e){}
   try{ var _sv = $('sermonView'); if (_sv) _sv.classList.remove('svheld'); }catch(e){}
@@ -4610,6 +4684,7 @@ function openSermonView(id, opts){
     var pb = $('svPresent');
     if (pb) pb.textContent = opts.focus ? '👁 Show bars' : '🎙 Present';
   }catch(e){}
+  try{ var ub = $('svUnpin'); if (ub) ub.style.display = s.pin ? '' : 'none'; }catch(e){}
 }
 function closeSermonView(){
   var v = $('sermonView');
@@ -4623,10 +4698,34 @@ function closeSermonView(){
   svReleaseWake();
   try{ hideSvBackBar(); }catch(e){}
 }
-function editSermonView(){ var id = sermonViewId; closeSermonView(); if (id) openSermon(id); }
+function editSermonView(){
+  var id = sermonViewId; closeSermonView();
+  if (!id) return;
+  /* a sermon deleted from the library is put back so it can be edited */
+  if (!sermonInLibrary(id)){
+    var p = pinSnapshot(id);
+    if (p){
+      var back = {}; for (var k in p){ if (k !== 'pinnedAt') back[k] = p[k]; }
+      sermons.push(back); saveSermons(); renderSermons();
+      toast('Restored to the sermon library');
+    }
+  }
+  openSermon(id);
+}
+function unpinSermonView(){
+  if (!sermonViewId) return;
+  var id = sermonViewId;
+  var s = null;
+  try{ s = sermons.filter(function(x){ return x && x.id === id; })[0]; }catch(e){}
+  if (s) s.pin = '';
+  try{ sermonPins = sermonPins.filter(function(p){ return !p || p.id !== id; }); }catch(e){}
+  saveSermonPins(); saveSermons();
+  closeSermonView(); refreshSermonLinks();
+  toast('Unpinned');
+}
 function jumpSermonScripture(){
   if (!sermonViewId) return;
-  var s = sermons.filter(function(x){ return x.id === sermonViewId; })[0];
+  var s = sermonById(sermonViewId);
   if (!s) return;
   var v = sermonVerse(s);
   if (!v){ toast('Set Book and Reference first'); return; }
@@ -4731,9 +4830,10 @@ function deleteSermon(){
   if (!sermonCur) return;
   var s = sermonCur;
   if (!window.confirm('Delete this sermon?')) return;
+  var wasPinned = !!s.pin;
   sermons = sermons.filter(function(x){ return x.id !== s.id; });
   saveSermons(); closeSermon(); renderSermons(); refreshSermonLinks();
-  toast('Sermon deleted');
+  toast(wasPinned ? 'Sermon deleted — pin kept above the verse' : 'Sermon deleted');
 }
 function updatePinBtn(){
   var b = $('sermonPin'); if (!b) return;
@@ -4749,14 +4849,19 @@ function togglePin(){
     if (!v){ toast('Set Book and Reference (e.g. 3:16) first'); return; }
     s.pin = v.bi + '|' + v.ch + '|' + v.v;
   }
-  var idx = sermons.map(function(x){ return x.id; }).indexOf(s.id); if (idx >= 0) sermons[idx] = s;
+  var idx = sermons.map(function(x){ return x.id; }).indexOf(s.id);
+  /* Pinning always keeps the sermon. A brand-new sermon that the auto-save has
+     not stored yet (no title or notes typed so far) is added to the library
+     too, so a pin can never be silently lost. */
+  if (idx >= 0) sermons[idx] = s;
+  else if (s.pin) sermons.push(s);
   saveSermons(); updatePinBtn(); renderSermons(); refreshSermonLinks();
   toast(s.pin ? ('Pinned above ' + bookName(s.book) + ' ' + s.reference) : 'Unpinned');
 }
 function refreshSermonLinks(){ if (S.view === 'read'){ try{ openChapter(S.bi, S.ch); }catch(e){} } }
 /* ---- sermon library: external backup with a remembered folder ---- */
 var sermonDir = null;
-function sermonBackupData(){ return {app: 'my-bible-sermons', version: 1, savedAt: new Date().toISOString(), sermons: sermons}; }
+function sermonBackupData(){ return {app: 'my-bible-sermons', version: 1, savedAt: new Date().toISOString(), sermons: sermons, pins: sermonPins}; }
 function sermonFileBase(s){
   var t = ((s && s.series ? s.series + ' - ' : '') + ((s && s.title) || 'sermon'));
   t = String(t).replace(/[\\/:*?"<>|\n\r\t]+/g, '-').replace(/\s+/g, ' ').trim();
@@ -4886,6 +4991,16 @@ function importSermonsFile(file){
         var i = -1; for (var j = 0; j < sermons.length; j++){ if (sermons[j] && sermons[j].id === s.id){ i = j; break; } }
         if (i >= 0){ sermons[i] = s; updated++; } else { sermons.push(s); added++; }
       });
+      /* pinned sermons travel with the library, including ones it no longer holds */
+      if (obj && Array.isArray(obj.pins)){
+        obj.pins.forEach(function(p){
+          if (!p || !p.id) return;
+          var i = -1;
+          for (var j = 0; j < sermonPins.length; j++){ if (sermonPins[j] && sermonPins[j].id === p.id){ i = j; break; } }
+          if (i >= 0) sermonPins[i] = p; else sermonPins.push(p);
+        });
+        saveSermonPins();
+      }
       saveSermons(); renderSermons(); refreshSermonLinks(); renderSermonBakStatus();
       toast((added || updated) ? ('Imported ' + added + ' new' + (updated ? ', updated ' + updated : '') + ((added + updated) === 1 ? ' sermon' : ' sermons')) : 'No changes');
     }catch(e){ toast('Could not read that file'); }
@@ -5050,6 +5165,7 @@ function renderSermons(){
   if ($('svFontMinus')) $('svFontMinus').onclick = function(){ svFontStep(-1); };
   if ($('svFontPlus')) $('svFontPlus').onclick = function(){ svFontStep(1); };
   if ($('svPresent')) $('svPresent').onclick = toggleSermonPresent;
+  if ($('svUnpin')) $('svUnpin').onclick = unpinSermonView;
   if ($('sermonPresent')) $('sermonPresent').onclick = presentSermonFromEditor;
   if ($('svBackBtn')) $('svBackBtn').onclick = returnToSermon;
   if ($('svBackDismiss')) $('svBackDismiss').onclick = hideSvBackBar;
