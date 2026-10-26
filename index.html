@@ -1947,7 +1947,14 @@ function buildNav(){
   var vg=$('navVGrid');vg.innerHTML='';
   BOOKS[S.bi].c[S.ch].forEach(function(_,v){
     var el=document.createElement('button');el.className='chip';el.textContent=v+1;
-    el.onclick=function(){$('navSheet').classList.remove('open');jumpVerse(S.bi,S.ch,v,true);};
+    el.onclick=function(){
+      var _b=S.bi,_c=S.ch;
+      $('navSheet').classList.remove('open');
+      /* land on the verse and show the normal verse popup only — the
+         commentary panel no longer opens by itself after picking a verse */
+      jumpVerse(_b,_c,v,false);
+      try{ openPopover(_b,_c,v); }catch(e){}
+    };
     vg.appendChild(el);
   });
 }
@@ -3957,6 +3964,67 @@ function removeSeriesPrefix(p){
   return true;
 }
 function pad4(n){ n = String(n); while (n.length < 4) n = '0' + n; return n; }
+/* ---- which portion of a chapter a reference points at -------------------
+   "3:16" is a verse portion, "3" is the whole chapter. The part number is
+   worked out from the verse, so a chapter's portions read 1006-1, 1006-2 …
+   in verse order, counting from verse 1.                                  */
+function refPartsFor(bi, ref){
+  bi = parseInt(bi, 10);
+  if (isNaN(bi) || bi < 0 || bi >= BOOKS.length) return null;
+  ref = String(ref == null ? '' : ref);
+  var m = ref.match(/(\d+)\s*[:.\s]\s*(\d+)/);
+  if (m){
+    var ch = parseInt(m[1], 10) - 1;
+    if (ch < 0 || ch >= BOOKS[bi].c.length) return null;
+    var v = parseInt(m[2], 10) - 1;
+    if (isNaN(v) || v < 0 || v >= BOOKS[bi].c[ch].length) v = 0;
+    return {bi: bi, ch: ch, v: v, verse: true};
+  }
+  var m2 = ref.match(/(\d+)/);
+  if (m2){
+    var ch2 = parseInt(m2[1], 10) - 1;
+    if (ch2 < 0 || ch2 >= BOOKS[bi].c.length) return null;
+    return {bi: bi, ch: ch2, v: 0, verse: false};
+  }
+  return null;
+}
+function sermonRefParts(s){ return s ? refPartsFor(s.book, s.reference) : null; }
+function currentRefParts(){
+  var bv = $('sBook') ? $('sBook').value : '';
+  if (bv === '' || bv == null) return null;
+  return refPartsFor(parseInt(bv, 10), $('sRef') ? String($('sRef').value || '') : '');
+}
+/* the part number a sermon gets inside its chapter: one more than the parts
+   that start before it, skipping any number already taken */
+function portionNumber(code, bi, ch, startVerse, selfId){
+  var used = {}, before = 0;
+  (Array.isArray(sermons) ? sermons : []).forEach(function(s){
+    if (!s || !s.id || s.id === selfId) return;
+    var p = sermonRefParts(s);
+    if (!p || !p.verse || p.bi !== bi || p.ch !== ch) return;
+    var sc = String(s.series || '').trim().toUpperCase();
+    if (sc.indexOf(code) !== 0) return;
+    var tail = sc.slice(code.length);
+    if (tail && tail.charAt(0) !== '-') return;
+    var n = parseInt(tail.replace(/^-/, ''), 10);
+    if (isNaN(n) || !n) n = 1;          /* a plain CO-1006 counts as part 1 */
+    used[n] = 1;
+    if (p.v < startVerse) before++;
+  });
+  var want = before + 1;
+  while (used[want]) want++;
+  return want;
+}
+/* the full series code for the sermon in the editor, e.g. CO-1006-2 */
+function seriesCodeFor(prefix){
+  var p = currentRefParts();
+  if (!p) return '';
+  var n = chapterNumber(p.bi, p.ch + 1);   /* chapterNumber counts chapters from 1 */
+  if (!n) return '';
+  var code = prefix + '-' + pad4(n);
+  if (!p.verse) return code;            /* a whole-chapter sermon keeps the plain code */
+  return code + '-' + portionNumber(code, p.bi, p.ch, p.v, sermonCur ? sermonCur.id : null);
+}
 function chapterNumber(bi, chapter){
   if (typeof BOOKS === 'undefined' || !BOOKS) return null;
   if (isNaN(bi) || bi < 0 || bi >= BOOKS.length) return null;
@@ -3980,10 +4048,10 @@ function applyChapterSeries(){
   var n = currentChapterNumber();
   if (!n) return;
   var cur = String(el.value || '').trim().toUpperCase();
-  var m = /^([A-Z]+)-\d+$/.exec(cur);
+  var m = /^([A-Z]+)-\d+(?:-\d+)?$/.exec(cur);
   var onSeries = m && CHAPTER_SERIES.indexOf(m[1]) >= 0;
-  if (cur === ''){ el.value = CHAPTER_SERIES[0] + '-' + pad4(n); try{ scheduleSermonSave(); }catch(e){} }
-  else if (onSeries){ el.value = m[1] + '-' + pad4(n); try{ scheduleSermonSave(); }catch(e){} }
+  if (cur === ''){ el.value = seriesCodeFor(CHAPTER_SERIES[0]) || (CHAPTER_SERIES[0] + '-' + pad4(n)); try{ scheduleSermonSave(); }catch(e){} }
+  else if (onSeries){ el.value = seriesCodeFor(m[1]) || (m[1] + '-' + pad4(n)); try{ scheduleSermonSave(); }catch(e){} }
 }
 /* One tappable button per series for the chosen chapter. */
 function seriesChipStyle(sel){
@@ -3998,7 +4066,7 @@ function renderSeriesPicks(){
   var cur = $('sSeries') ? String($('sSeries').value || '').trim().toUpperCase() : '';
   if (n){
     CHAPTER_SERIES.forEach(function(p){
-      var code = p + '-' + pad4(n);
+      var code = seriesCodeFor(p) || (p + '-' + pad4(n));
       var b = document.createElement('button');
       b.type = 'button';
       b.textContent = code;
@@ -4029,7 +4097,7 @@ function promptNewSeries(){
   if (added){
     var n = currentChapterNumber();
     var el = $('sSeries');
-    if (n && el){ el.value = added + '-' + pad4(n); try{ scheduleSermonSave(); }catch(e){} }
+    if (n && el){ el.value = seriesCodeFor(added) || (added + '-' + pad4(n)); try{ scheduleSermonSave(); }catch(e){} }
     toast('Series ' + added + ' added');
     try{ renderSeriesMgmt(); }catch(e){}
   } else if (cleanPrefix(p)){
